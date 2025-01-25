@@ -22,6 +22,7 @@
 
     <button class="btn btn-primary" @onclick="CheckAnswers">Submit Answers</button>
 
+
     @if (showResults)
     {
         <h2>Results:</h2>
@@ -41,6 +42,7 @@ else
 }
 
 @code {
+    private int currentCount = 0;
     private TriolingoContext context = default!;
     private string QuizTitle { get; set; } = "Loading...";
     private List<Question> questions = new();
@@ -70,7 +72,7 @@ else
             }
         }
         else
-        {
+        {   
             QuizTitle = "Quiz not found";
         }
     }
@@ -78,6 +80,8 @@ else
     private void CheckAnswers()
     {
         showResults = true; // Display results after checking answers
+        StateHasChanged(); // Trigger UI refresh
+
     }
 
     public async ValueTask DisposeAsync() => await context.DisposeAsync();
