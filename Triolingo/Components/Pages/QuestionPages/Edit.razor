@@ -1,0 +1,124 @@
+﻿@page "/questions/edit"
+@using Microsoft.EntityFrameworkCore
+@using Triolingo.Domain
+@inject IDbContextFactory<Triolingo.Data.TriolingoContext> DbFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>Edit</PageTitle>
+
+<h1>Edit</h1>
+
+<h2>Question</h2>
+<hr />
+@if (Question is null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <div class="row">
+        <div class="col-md-4">
+            <EditForm method="post" Model="Question" OnValidSubmit="UpdateQuestion" FormName="edit" Enhance>
+                <DataAnnotationsValidator />
+                <ValidationSummary role="alert"/>
+                <input type="hidden" name="Question.QuestionId" value="@Question.QuestionId" />
+                <div class="mb-3">
+                    <label for="questiontext" class="form-label">QuestionText:</label>
+                    <InputText id="questiontext" @bind-Value="Question.QuestionText" class="form-control" />
+                    <ValidationMessage For="() => Question.QuestionText" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="useranswer" class="form-label">UserAnswer:</label>
+                    <InputText id="useranswer" @bind-Value="Question.UserAnswer" class="form-control" />
+                    <ValidationMessage For="() => Question.UserAnswer" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="correctanswer" class="form-label">CorrectAnswer:</label>
+                    <InputText id="correctanswer" @bind-Value="Question.CorrectAnswer" class="form-control" />
+                    <ValidationMessage For="() => Question.CorrectAnswer" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="quizid" class="form-label">QuizId:</label>
+                    <InputNumber id="quizid" @bind-Value="Question.QuizId" class="form-control" />
+                    <ValidationMessage For="() => Question.QuizId" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="datecreated" class="form-label">DateCreated:</label>
+                    <InputDate id="datecreated" @bind-Value="Question.DateCreated" class="form-control" />
+                    <ValidationMessage For="() => Question.DateCreated" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="dateupdated" class="form-label">DateUpdated:</label>
+                    <InputDate id="dateupdated" @bind-Value="Question.DateUpdated" class="form-control" />
+                    <ValidationMessage For="() => Question.DateUpdated" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="createdby" class="form-label">CreatedBy:</label>
+                    <InputText id="createdby" @bind-Value="Question.CreatedBy" class="form-control" />
+                    <ValidationMessage For="() => Question.CreatedBy" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="updatedby" class="form-label">UpdatedBy:</label>
+                    <InputText id="updatedby" @bind-Value="Question.UpdatedBy" class="form-control" />
+                    <ValidationMessage For="() => Question.UpdatedBy" class="text-danger" />
+                </div>
+                <button type="submit" class="btn btn-primary">Save</button>
+            </EditForm>
+        </div>
+    </div>
+}
+
+<div>
+    <a href="/questions">Back to List</a>
+</div>
+
+@code {
+    [SupplyParameterFromQuery]
+    private int QuestionId { get; set; }
+
+    [SupplyParameterFromForm]
+    private Question? Question { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        using var context = DbFactory.CreateDbContext();
+        Question ??= await context.Question.FirstOrDefaultAsync(m => m.QuestionId == QuestionId);
+
+        if (Question is null)
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
+    }
+
+    // To protect from overposting attacks, enable the specific properties you want to bind to.
+    // For more information, see https://learn.microsoft.com/aspnet/core/blazor/forms/#mitigate-overposting-attacks.
+    private async Task UpdateQuestion()
+    {
+        using var context = DbFactory.CreateDbContext();
+        context.Attach(Question!).State = EntityState.Modified;
+
+        try
+        {
+            await context.SaveChangesAsync();
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            if (!QuestionExists(Question!.QuestionId))
+            {
+                NavigationManager.NavigateTo("notfound");
+            }
+            else
+            {
+                throw;
+            }
+        }
+
+        NavigationManager.NavigateTo("/questions");
+    }
+
+    private bool QuestionExists(int questionid)
+    {
+        using var context = DbFactory.CreateDbContext();
+        return context.Question.Any(e => e.QuestionId == questionid);
+    }
+}

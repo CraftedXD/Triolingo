@@ -1,0 +1,58 @@
+﻿@page "/quizzes/details"
+@using Microsoft.EntityFrameworkCore
+@using Triolingo.Domain
+@inject IDbContextFactory<Triolingo.Data.TriolingoContext> DbFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>Details</PageTitle>
+
+<h1>Details</h1>
+
+<div>
+    <h2>Quiz</h2>
+    <hr />
+    @if (quiz is null)
+    {
+        <p><em>Loading...</em></p>
+    }
+    else {
+        <dl class="row">
+            <dt class="col-sm-2">QuizTitle</dt>
+            <dd class="col-sm-10">@quiz.QuizTitle</dd>
+            <dt class="col-sm-2">LevelDifficultly</dt>
+            <dd class="col-sm-10">@quiz.LevelDifficultly</dd>
+            <dt class="col-sm-2">LessonId</dt>
+            <dd class="col-sm-10">@quiz.LessonId</dd>
+            <dt class="col-sm-2">DateCreated</dt>
+            <dd class="col-sm-10">@quiz.DateCreated</dd>
+            <dt class="col-sm-2">DateUpdated</dt>
+            <dd class="col-sm-10">@quiz.DateUpdated</dd>
+            <dt class="col-sm-2">CreatedBy</dt>
+            <dd class="col-sm-10">@quiz.CreatedBy</dd>
+            <dt class="col-sm-2">UpdatedBy</dt>
+            <dd class="col-sm-10">@quiz.UpdatedBy</dd>
+        </dl>
+        <div>
+            <a href="@($"/quizzes/edit?quizid={quiz.QuizId}")">Edit</a> |
+            <a href="@($"/quizzes")">Back to List</a>
+        </div>
+    }
+</div>
+
+@code {
+    private Quiz? quiz;
+
+    [SupplyParameterFromQuery]
+    private int QuizId { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        using var context = DbFactory.CreateDbContext();
+        quiz = await context.Quiz.FirstOrDefaultAsync(m => m.QuizId == QuizId);
+
+        if (quiz is null)
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
+    }
+}

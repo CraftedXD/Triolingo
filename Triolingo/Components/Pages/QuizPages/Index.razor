@@ -1,0 +1,42 @@
+﻿@page "/quizzes"
+@using Microsoft.EntityFrameworkCore
+@using Microsoft.AspNetCore.Components.QuickGrid
+@using Triolingo.Domain
+@using Triolingo.Data
+@implements IAsyncDisposable
+@inject IDbContextFactory<Triolingo.Data.TriolingoContext> DbFactory
+
+<PageTitle>Index</PageTitle>
+
+<h1>Index</h1>
+
+<p>
+    <a href="quizzes/create">Create New</a>
+</p>
+
+<QuickGrid Class="table" Items="context.Quiz">
+    <PropertyColumn Property="quiz => quiz.QuizTitle" />
+    <PropertyColumn Property="quiz => quiz.LevelDifficultly" />
+    <PropertyColumn Property="quiz => quiz.LessonId" />
+    <PropertyColumn Property="quiz => quiz.DateCreated" />
+    <PropertyColumn Property="quiz => quiz.DateUpdated" />
+    <PropertyColumn Property="quiz => quiz.CreatedBy" />
+    <PropertyColumn Property="quiz => quiz.UpdatedBy" />
+
+    <TemplateColumn Context="quiz">
+        <a href="@($"quizzes/edit?quizid={quiz.QuizId}")">Edit</a> |
+        <a href="@($"quizzes/details?quizid={quiz.QuizId}")">Details</a> |
+        <a href="@($"quizzes/delete?quizid={quiz.QuizId}")">Delete</a>
+    </TemplateColumn>
+</QuickGrid>
+
+@code {
+    private TriolingoContext context = default!;
+
+    protected override void OnInitialized()
+    {
+        context = DbFactory.CreateDbContext();
+    }
+
+    public async ValueTask DisposeAsync() => await context.DisposeAsync();
+}

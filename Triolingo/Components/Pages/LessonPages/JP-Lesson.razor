@@ -1,0 +1,46 @@
+﻿@page "/lessons/japanese"
+@using Microsoft.EntityFrameworkCore
+@using Microsoft.AspNetCore.Components.QuickGrid
+@using Triolingo.Domain
+@using Triolingo.Data
+@implements IAsyncDisposable
+@inject IDbContextFactory<Triolingo.Data.TriolingoContext> DbFactory
+
+<PageTitle>Japanese Lesson</PageTitle>
+
+<h1>@LessonName</h1>
+
+<p>@LessonContent</p>
+
+<p>
+    <a class="btn btn-primary" href="/quizzes/japanese">Quiz</a>
+</p>
+
+@code {
+    private TriolingoContext context = default!;
+    private string LessonName { get; set; } = "Loading...";
+    private string LessonContent { get; set; } = "Loading content...";
+    private int CurrentLessonOrder { get; set; } = 1; // Default to Lesson 1
+
+    protected override async Task OnInitializedAsync()
+    {
+        context = DbFactory.CreateDbContext();
+
+        // Fetch the lesson for the current LanguageId and LessonOrder
+        var currentLesson = await context.Lesson
+            .FirstOrDefaultAsync(lesson => lesson.LanguageId == 1 && lesson.LessonOrder == CurrentLessonOrder);
+
+        if (currentLesson != null)
+        {
+            LessonName = currentLesson.LessonName;
+            LessonContent = currentLesson.LessonContent;
+        }
+        else
+        {
+            LessonName = "No more lessons available";
+            LessonContent = "You have completed all the lessons for this language.";
+        }
+    }
+
+    public async ValueTask DisposeAsync() => await context.DisposeAsync();
+}

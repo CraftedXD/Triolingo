@@ -1,0 +1,42 @@
+﻿@page "/quizresults"
+@using Microsoft.EntityFrameworkCore
+@using Microsoft.AspNetCore.Components.QuickGrid
+@using Triolingo.Domain
+@using Triolingo.Data
+@implements IAsyncDisposable
+@inject IDbContextFactory<Triolingo.Data.TriolingoContext> DbFactory
+
+<PageTitle>Index</PageTitle>
+
+<h1>Index</h1>
+
+<p>
+    <a href="quizresults/create">Create New</a>
+</p>
+
+<QuickGrid Class="table" Items="context.QuizResult">
+    <PropertyColumn Property="quizresult => quizresult.Score" />
+    <PropertyColumn Property="quizresult => quizresult.QuizId" />
+    <PropertyColumn Property="quizresult => quizresult.UserId" />
+    <PropertyColumn Property="quizresult => quizresult.DateCreated" />
+    <PropertyColumn Property="quizresult => quizresult.DateUpdated" />
+    <PropertyColumn Property="quizresult => quizresult.CreatedBy" />
+    <PropertyColumn Property="quizresult => quizresult.UpdatedBy" />
+
+    <TemplateColumn Context="quizresult">
+        <a href="@($"quizresults/edit?quizresultid={quizresult.QuizResultId}")">Edit</a> |
+        <a href="@($"quizresults/details?quizresultid={quizresult.QuizResultId}")">Details</a> |
+        <a href="@($"quizresults/delete?quizresultid={quizresult.QuizResultId}")">Delete</a>
+    </TemplateColumn>
+</QuickGrid>
+
+@code {
+    private TriolingoContext context = default!;
+
+    protected override void OnInitialized()
+    {
+        context = DbFactory.CreateDbContext();
+    }
+
+    public async ValueTask DisposeAsync() => await context.DisposeAsync();
+}

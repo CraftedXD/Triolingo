@@ -1,0 +1,56 @@
+﻿@page "/languages"
+@using Microsoft.EntityFrameworkCore
+@using Microsoft.AspNetCore.Components.QuickGrid
+@using Triolingo.Domain
+@using Triolingo.Data
+@using Microsoft.AspNetCore.Authorization
+@implements IAsyncDisposable
+@inject IDbContextFactory<Triolingo.Data.TriolingoContext> DbFactory
+
+@attribute [Authorize(Roles = "Administrator, User")]
+
+<PageTitle>Languages</PageTitle>
+
+<h1>Which language would you like to learn?</h1>
+
+<p>
+    <AuthorizeView Roles="Administrator">
+    <a href="languages/create">Add Language</a>
+    </AuthorizeView>
+</p>
+
+<div>
+    <button class="btn btn-primary" onclick="location.href='/lessons/japanese'">Japanese</button>
+    <button class="btn btn-primary" onclick="location.href='/lessons/chinese'">Chinese</button>
+</div>
+
+<QuickGrid Class="table" Items="context.Language">
+    <AuthorizeView Roles="Administrator">
+    <PropertyColumn Property="language => language.Name" />
+    <PropertyColumn Property="language => language.UserId" />
+    <PropertyColumn Property="language => language.LessonId" />
+    <PropertyColumn Property="language => language.DateCreated" />
+    <PropertyColumn Property="language => language.DateUpdated" />
+    <PropertyColumn Property="language => language.CreatedBy" />
+    <PropertyColumn Property="language => language.UpdatedBy" />
+    </AuthorizeView>
+    <AuthorizeView Roles="Administrator">
+    <TemplateColumn Context="language">
+        <a href="@($"languages/edit?languageid={language.LanguageId}")">Edit</a> |
+        <a href="@($"languages/details?languageid={language.LanguageId}")">Details</a> |
+        <a href="@($"languages/delete?languageid={language.LanguageId}")">Delete</a>
+    </TemplateColumn>
+    </AuthorizeView>
+</QuickGrid>
+
+@code {
+    private TriolingoContext context = default!;
+
+    protected override void OnInitialized()
+    {
+        context = DbFactory.CreateDbContext();
+    }
+
+    public async ValueTask DisposeAsync() => await context.DisposeAsync();
+
+}

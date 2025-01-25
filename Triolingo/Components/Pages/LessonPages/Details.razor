@@ -1,0 +1,60 @@
+﻿@page "/lessons/details"
+@using Microsoft.EntityFrameworkCore
+@using Triolingo.Domain
+@inject IDbContextFactory<Triolingo.Data.TriolingoContext> DbFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>Details</PageTitle>
+
+<h1>Details</h1>
+
+<div>
+    <h2>Lesson</h2>
+    <hr />
+    @if (lesson is null)
+    {
+        <p><em>Loading...</em></p>
+    }
+    else {
+        <dl class="row">
+            <dt class="col-sm-2">LessonName</dt>
+            <dd class="col-sm-10">@lesson.LessonName</dd>
+            <dt class="col-sm-2">LessonContent</dt>
+            <dd class="col-sm-10">@lesson.LessonContent</dd>
+            <dt class="col-sm-2">LessonOrder</dt>
+            <dd class="col-sm-10">@lesson.LessonOrder</dd>
+            <dt class="col-sm-2">LanguageId</dt>
+            <dd class="col-sm-10">@lesson.LanguageId</dd>
+            <dt class="col-sm-2">DateCreated</dt>
+            <dd class="col-sm-10">@lesson.DateCreated</dd>
+            <dt class="col-sm-2">DateUpdated</dt>
+            <dd class="col-sm-10">@lesson.DateUpdated</dd>
+            <dt class="col-sm-2">CreatedBy</dt>
+            <dd class="col-sm-10">@lesson.CreatedBy</dd>
+            <dt class="col-sm-2">UpdatedBy</dt>
+            <dd class="col-sm-10">@lesson.UpdatedBy</dd>
+        </dl>
+        <div>
+            <a href="@($"/lessons/edit?lessonid={lesson.LessonId}")">Edit</a> |
+            <a href="@($"/lessons")">Back to List</a>
+        </div>
+    }
+</div>
+
+@code {
+    private Lesson? lesson;
+
+    [SupplyParameterFromQuery]
+    private int LessonId { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        using var context = DbFactory.CreateDbContext();
+        lesson = await context.Lesson.FirstOrDefaultAsync(m => m.LessonId == LessonId);
+
+        if (lesson is null)
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
+    }
+}

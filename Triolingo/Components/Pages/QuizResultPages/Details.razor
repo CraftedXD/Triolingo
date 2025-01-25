@@ -1,0 +1,58 @@
+﻿@page "/quizresults/details"
+@using Microsoft.EntityFrameworkCore
+@using Triolingo.Domain
+@inject IDbContextFactory<Triolingo.Data.TriolingoContext> DbFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>Details</PageTitle>
+
+<h1>Details</h1>
+
+<div>
+    <h2>QuizResult</h2>
+    <hr />
+    @if (quizresult is null)
+    {
+        <p><em>Loading...</em></p>
+    }
+    else {
+        <dl class="row">
+            <dt class="col-sm-2">Score</dt>
+            <dd class="col-sm-10">@quizresult.Score</dd>
+            <dt class="col-sm-2">QuizId</dt>
+            <dd class="col-sm-10">@quizresult.QuizId</dd>
+            <dt class="col-sm-2">UserId</dt>
+            <dd class="col-sm-10">@quizresult.UserId</dd>
+            <dt class="col-sm-2">DateCreated</dt>
+            <dd class="col-sm-10">@quizresult.DateCreated</dd>
+            <dt class="col-sm-2">DateUpdated</dt>
+            <dd class="col-sm-10">@quizresult.DateUpdated</dd>
+            <dt class="col-sm-2">CreatedBy</dt>
+            <dd class="col-sm-10">@quizresult.CreatedBy</dd>
+            <dt class="col-sm-2">UpdatedBy</dt>
+            <dd class="col-sm-10">@quizresult.UpdatedBy</dd>
+        </dl>
+        <div>
+            <a href="@($"/quizresults/edit?quizresultid={quizresult.QuizResultId}")">Edit</a> |
+            <a href="@($"/quizresults")">Back to List</a>
+        </div>
+    }
+</div>
+
+@code {
+    private QuizResult? quizresult;
+
+    [SupplyParameterFromQuery]
+    private int QuizResultId { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        using var context = DbFactory.CreateDbContext();
+        quizresult = await context.QuizResult.FirstOrDefaultAsync(m => m.QuizResultId == QuizResultId);
+
+        if (quizresult is null)
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
+    }
+}

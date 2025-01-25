@@ -1,0 +1,53 @@
+﻿@page "/lessons/chinese"
+@using Microsoft.EntityFrameworkCore
+@using Microsoft.AspNetCore.Components.QuickGrid
+@using Triolingo.Domain
+@using Triolingo.Data
+@implements IAsyncDisposable
+@inject IDbContextFactory<Triolingo.Data.TriolingoContext> DbFactory
+
+<PageTitle>Chinese Lesson</PageTitle>
+
+<h1>@LessonName</h1>
+
+<QuickGrid Class="table" Items="context.Lesson">
+    <PropertyColumn Property="lesson => lesson.LessonName" />
+    <PropertyColumn Property="lesson => lesson.LessonContent" />
+    <PropertyColumn Property="lesson => lesson.LessonOrder" />
+    <PropertyColumn Property="lesson => lesson.LanguageId" />
+    <PropertyColumn Property="lesson => lesson.DateCreated" />
+    <PropertyColumn Property="lesson => lesson.DateUpdated" />
+    <PropertyColumn Property="lesson => lesson.CreatedBy" />
+    <PropertyColumn Property="lesson => lesson.UpdatedBy" />
+
+    <TemplateColumn Context="lesson">
+        <a href="@($"lessons/edit?lessonid={lesson.LessonId}")">Edit</a> |
+        <a href="@($"lessons/details?lessonid={lesson.LessonId}")">Details</a> |
+        <a href="@($"lessons/delete?lessonid={lesson.LessonId}")">Delete</a>
+    </TemplateColumn>
+</QuickGrid>
+
+@code {
+    private TriolingoContext context = default!;
+    private string LessonName { get; set; } = "Loading...";
+
+    protected override async Task OnInitializedAsync()
+    {
+        context = DbFactory.CreateDbContext();
+
+        // Fetch the lesson with the desired criteria (e.g., for the Chinese lesson)
+        var Lesson = await context.Lesson
+            .FirstOrDefaultAsync(lesson => lesson.LanguageId == 2);
+
+        if (Lesson != null)
+        {
+            LessonName = Lesson.LessonName;
+        }
+        else
+        {
+            LessonName = "Lesson not found";
+        }
+    }
+
+    public async ValueTask DisposeAsync() => await context.DisposeAsync();
+}
