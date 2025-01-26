@@ -10,42 +10,35 @@
 
 <h1>@LessonName</h1>
 
-<QuickGrid Class="table" Items="context.Lesson">
-    <PropertyColumn Property="lesson => lesson.LessonName" />
-    <PropertyColumn Property="lesson => lesson.LessonContent" />
-    <PropertyColumn Property="lesson => lesson.LessonOrder" />
-    <PropertyColumn Property="lesson => lesson.LanguageId" />
-    <PropertyColumn Property="lesson => lesson.DateCreated" />
-    <PropertyColumn Property="lesson => lesson.DateUpdated" />
-    <PropertyColumn Property="lesson => lesson.CreatedBy" />
-    <PropertyColumn Property="lesson => lesson.UpdatedBy" />
+<p>@LessonContent</p>
 
-    <TemplateColumn Context="lesson">
-        <a href="@($"lessons/edit?lessonid={lesson.LessonId}")">Edit</a> |
-        <a href="@($"lessons/details?lessonid={lesson.LessonId}")">Details</a> |
-        <a href="@($"lessons/delete?lessonid={lesson.LessonId}")">Delete</a>
-    </TemplateColumn>
-</QuickGrid>
+<p>
+    <a class="btn btn-primary" href="/quizzes/chinese">Quiz</a>
+</p>
 
 @code {
     private TriolingoContext context = default!;
     private string LessonName { get; set; } = "Loading...";
+    private string LessonContent { get; set; } = "Loading content...";
+    private int CurrentLessonOrder { get; set; } = 1; // Default to Lesson 1
 
     protected override async Task OnInitializedAsync()
     {
         context = DbFactory.CreateDbContext();
 
-        // Fetch the lesson with the desired criteria (e.g., for the Chinese lesson)
-        var Lesson = await context.Lesson
-            .FirstOrDefaultAsync(lesson => lesson.LanguageId == 2);
+        // Fetch the lesson for the current LanguageId and LessonOrder
+        var currentLesson = await context.Lesson
+            .FirstOrDefaultAsync(lesson => lesson.LanguageId == 2 && lesson.LessonOrder == CurrentLessonOrder);
 
-        if (Lesson != null)
+        if (currentLesson != null)
         {
-            LessonName = Lesson.LessonName;
+            LessonName = currentLesson.LessonName;
+            LessonContent = currentLesson.LessonContent;
         }
         else
         {
-            LessonName = "Lesson not found";
+            LessonName = "No more lessons available";
+            LessonContent = "You have completed all the lessons for this language.";
         }
     }
 

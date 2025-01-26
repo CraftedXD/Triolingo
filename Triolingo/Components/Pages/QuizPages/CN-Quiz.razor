@@ -1,11 +1,11 @@
-﻿@page "/quizzes/japanese"
+﻿@page "/quizzes/chinese"
 @using Microsoft.EntityFrameworkCore
 @using Triolingo.Domain
 @using Triolingo.Data
 @implements IAsyncDisposable
 @inject IDbContextFactory<Triolingo.Data.TriolingoContext> DbFactory
 
-<PageTitle>Japanese Quiz</PageTitle>
+<PageTitle>Chinese Quiz</PageTitle>
 
 <h1>@QuizTitle</h1>
 
@@ -20,8 +20,7 @@
         <br />
     }
 
-    <button class="btn btn-primary" @onclick="CheckAnswers">Submit Answers</button>
-
+    <button class="btn btn-primary" @onclick="CheckAnswers">Check Answers</button>
 
     @if (showResults)
     {
@@ -42,6 +41,7 @@ else
 }
 
 @code {
+    private int currentCount = 0;
     private TriolingoContext context = default!;
     private string QuizTitle { get; set; } = "Loading...";
     private List<Question> questions = new();
@@ -52,40 +52,29 @@ else
     {
         context = DbFactory.CreateDbContext();
 
-        // Fetch the lesson where LanguageId == 1
-        var lesson = await context.Lesson.FirstOrDefaultAsync(l => l.LanguageId == 1);
+        // Fetch the quiz for Japanese
+        var quiz = await context.Quiz.FirstOrDefaultAsync(q => q.LessonId == 3);
 
-        if (lesson != null)
+        if (quiz != null)
         {
-            // Fetch the quiz where LessonId matches the lesson's ID
-            var quiz = await context.Quiz.FirstOrDefaultAsync(q => q.LessonId == lesson.LessonId);
+            QuizTitle = quiz.QuizTitle;
 
-            if (quiz != null)
+            // Fetch questions for the quiz
+            questions = await context.Question
+                .Where(q => q.QuizId == quiz.QuizId)
+                .ToListAsync();
+
+            // Initialize the dictionary for user answers
+            foreach (var question in questions)
             {
-                QuizTitle = quiz.QuizTitle;
-
-                // Fetch questions for the quiz
-                questions = await context.Question
-                    .Where(q => q.QuizId == quiz.QuizId)
-                    .ToListAsync();
-
-                // Initialize the dictionary for user answers
-                foreach (var question in questions)
-                {
-                    userAnswers[question.QuestionId] = null;
-                }
-            }
-            else
-            {
-                QuizTitle = "Quiz not found for the selected lesson.";
+                userAnswers[question.QuestionId] = null;
             }
         }
         else
-        {
-            QuizTitle = "Lesson not found for the selected language.";
+        {   
+            QuizTitle = "Quiz not found";
         }
     }
-
 
     private void CheckAnswers()
     {

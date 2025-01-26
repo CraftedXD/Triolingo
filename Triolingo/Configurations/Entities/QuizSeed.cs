@@ -30,6 +30,28 @@ namespace Triolingo.Configurations.Entities
                     DateUpdated = DateTime.Now,
                     CreatedBy = "System",
                     UpdatedBy = "System"
+                },
+                new Quiz
+                {
+                    QuizId = 3,
+                    QuizTitle = "Chinese Quiz 1",
+                    LevelDifficultly = 1,
+                    LessonId = 3,
+                    DateCreated = DateTime.Now,
+                    DateUpdated = DateTime.Now,
+                    CreatedBy = "System",
+                    UpdatedBy = "System"
+                },
+                new Quiz
+                {
+                    QuizId = 4,
+                    QuizTitle = "Chinese Quiz 2",
+                    LevelDifficultly = 2,
+                    LessonId = 4,
+                    DateCreated = DateTime.Now,
+                    DateUpdated = DateTime.Now,
+                    CreatedBy = "System",
+                    UpdatedBy = "System"
                 }
                 );
         }

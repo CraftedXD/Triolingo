@@ -40,6 +40,38 @@ namespace Triolingo.Configurations.Entities
                     DateUpdated = DateTime.Now,
                     CreatedBy = "System",
                     UpdatedBy = "System"
+                },
+                new Lesson
+                {
+                    LessonId = 3,
+                    LessonName = "Chinese Lesson 1",
+                    LessonContent = "一 is the number 1 in chinese and it's pronouced 'yī'\n" +
+                    "二 is the number 2 in chinese and it's pronouced 'èr'\n" +
+                    "三 in the number 3 in chinese it's pronouced 'sān'\n" +
+                    "四 in the number 4 in chinese it's pronouced 'sì'\n" +
+                    "五 in the number 4 in chinese it's pronouced 'wǔ'\n",
+                    LessonOrder = 1,
+                    LanguageId = 2,
+                    DateCreated = DateTime.Now,
+                    DateUpdated = DateTime.Now,
+                    CreatedBy = "System",
+                    UpdatedBy = "System"
+                },
+                new Lesson
+                {
+                    LessonId = 4,
+                    LessonName = "Chinese Lesson 2",
+                    LessonContent = "六 is the number 6 in chinese and it's pronouced 'liù'\n" +
+                    "七 is the number 7 in chinese and it's pronouced 'qī'\n" +
+                    "八 in the number 8 in chinese it's pronouced 'bā'\n" +
+                    "九 in the number 9 in chinese it's pronouced 'jiǔ'\n" +
+                    "十 in the number 10 in chinese it's pronouced 'shí'\n",
+                    LessonOrder = 2,
+                    LanguageId = 2,
+                    DateCreated = DateTime.Now,
+                    DateUpdated = DateTime.Now,
+                    CreatedBy = "System",
+                    UpdatedBy = "System"
                 });
         }
     }

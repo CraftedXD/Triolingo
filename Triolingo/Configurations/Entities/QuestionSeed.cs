@@ -128,6 +128,126 @@ namespace Triolingo.Configurations.Entities
                     DateUpdated = DateTime.Now,
                     CreatedBy = "System",
                     UpdatedBy = "System"
+                },
+                new Question
+                {
+                    QuestionId = 11,
+                    QuestionText = "What is this Character? 一",
+                    UserAnswer = "",
+                    CorrectAnswer = "yi",
+                    QuizId = 3,
+                    DateCreated = DateTime.Now,
+                    DateUpdated = DateTime.Now,
+                    CreatedBy = "System",
+                    UpdatedBy = "System"
+                },
+                new Question
+                {
+                    QuestionId = 12,
+                    QuestionText = "What is this Character? 二",
+                    UserAnswer = "",
+                    CorrectAnswer = "er",
+                    QuizId = 3,
+                    DateCreated = DateTime.Now,
+                    DateUpdated = DateTime.Now,
+                    CreatedBy = "System",
+                    UpdatedBy = "System"
+                },
+                new Question
+                {
+                    QuestionId = 13,
+                    QuestionText = "What is this Character? 三",
+                    UserAnswer = "",
+                    CorrectAnswer = "san",
+                    QuizId = 3,
+                    DateCreated = DateTime.Now,
+                    DateUpdated = DateTime.Now,
+                    CreatedBy = "System",
+                    UpdatedBy = "System"
+                },
+                new Question
+                {
+                    QuestionId = 14,
+                    QuestionText = "What is this Character? 四",
+                    UserAnswer = "",
+                    CorrectAnswer = "si",
+                    QuizId = 3,
+                    DateCreated = DateTime.Now,
+                    DateUpdated = DateTime.Now,
+                    CreatedBy = "System",
+                    UpdatedBy = "System"
+                },
+                new Question
+                {
+                    QuestionId = 15,
+                    QuestionText = "What is this Character? 五",
+                    UserAnswer = "",
+                    CorrectAnswer = "wu",
+                    QuizId = 3,
+                    DateCreated = DateTime.Now,
+                    DateUpdated = DateTime.Now,
+                    CreatedBy = "System",
+                    UpdatedBy = "System"
+                },
+                new Question
+                {
+                    QuestionId = 16,
+                    QuestionText = "What is this Character? 六",
+                    UserAnswer = "",
+                    CorrectAnswer = "liu",
+                    QuizId = 4,
+                    DateCreated = DateTime.Now,
+                    DateUpdated = DateTime.Now,
+                    CreatedBy = "System",
+                    UpdatedBy = "System"
+                },
+                new Question
+                {
+                    QuestionId = 17,
+                    QuestionText = "What is this Character? 七",
+                    UserAnswer = "",
+                    CorrectAnswer = "qi",
+                    QuizId = 4,
+                    DateCreated = DateTime.Now,
+                    DateUpdated = DateTime.Now,
+                    CreatedBy = "System",
+                    UpdatedBy = "System"
+                },
+                new Question
+                {
+                    QuestionId = 18,
+                    QuestionText = "What is this Character? 八",
+                    UserAnswer = "",
+                    CorrectAnswer = "ba",
+                    QuizId = 4,
+                    DateCreated = DateTime.Now,
+                    DateUpdated = DateTime.Now,
+                    CreatedBy = "System",
+                    UpdatedBy = "System"
+                },
+                new Question
+                {
+                    QuestionId = 19,
+                    QuestionText = "What is this Character? 九",
+                    UserAnswer = "",
+                    CorrectAnswer = "jiu",
+                    QuizId = 4,
+                    DateCreated = DateTime.Now,
+                    DateUpdated = DateTime.Now,
+                    CreatedBy = "System",
+                    UpdatedBy = "System"
+                },
+                new Question
+                {
+                    QuestionId = 20,
+                    QuestionText = "What is this Character? 十",
+                    UserAnswer = "",
+                    CorrectAnswer = "shi",
+                    QuizId = 4,
+                    DateCreated = DateTime.Now,
+                    DateUpdated = DateTime.Now,
+                    CreatedBy = "System",
+                    UpdatedBy = "System"
                 }
                 );
         }
