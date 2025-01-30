@@ -1,0 +1,119 @@
+﻿@page "/scoreboards/edit"
+@using Microsoft.EntityFrameworkCore
+@using Triolingo.Domain
+@inject IDbContextFactory<Triolingo.Data.TriolingoContext> DbFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>Edit</PageTitle>
+
+<h1>Edit</h1>
+
+<h2>Scoreboard</h2>
+<hr />
+@if (Scoreboard is null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <div class="row">
+        <div class="col-md-4">
+            <EditForm method="post" Model="Scoreboard" OnValidSubmit="UpdateScoreboard" FormName="edit" Enhance>
+                <DataAnnotationsValidator />
+                <ValidationSummary role="alert"/>
+                <input type="hidden" name="Scoreboard.ScoreboardId" value="@Scoreboard.ScoreboardId" />
+                <div class="mb-3">
+                    <label for="totalscore" class="form-label">TotalScore:</label>
+                    <InputNumber id="totalscore" @bind-Value="Scoreboard.TotalScore" class="form-control" />
+                    <ValidationMessage For="() => Scoreboard.TotalScore" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="userid" class="form-label">UserId:</label>
+                    <InputText id="userid" @bind-Value="Scoreboard.UserId" class="form-control" />
+                    <ValidationMessage For="() => Scoreboard.UserId" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="languageid" class="form-label">LanguageId:</label>
+                    <InputNumber id="languageid" @bind-Value="Scoreboard.LanguageId" class="form-control" />
+                    <ValidationMessage For="() => Scoreboard.LanguageId" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="datecreated" class="form-label">DateCreated:</label>
+                    <InputDate id="datecreated" @bind-Value="Scoreboard.DateCreated" class="form-control" />
+                    <ValidationMessage For="() => Scoreboard.DateCreated" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="dateupdated" class="form-label">DateUpdated:</label>
+                    <InputDate id="dateupdated" @bind-Value="Scoreboard.DateUpdated" class="form-control" />
+                    <ValidationMessage For="() => Scoreboard.DateUpdated" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="createdby" class="form-label">CreatedBy:</label>
+                    <InputText id="createdby" @bind-Value="Scoreboard.CreatedBy" class="form-control" />
+                    <ValidationMessage For="() => Scoreboard.CreatedBy" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="updatedby" class="form-label">UpdatedBy:</label>
+                    <InputText id="updatedby" @bind-Value="Scoreboard.UpdatedBy" class="form-control" />
+                    <ValidationMessage For="() => Scoreboard.UpdatedBy" class="text-danger" />
+                </div>
+                <button type="submit" class="btn btn-primary">Save</button>
+            </EditForm>
+        </div>
+    </div>
+}
+
+<div>
+    <a href="/scoreboards">Back to List</a>
+</div>
+
+@code {
+    [SupplyParameterFromQuery]
+    private int ScoreboardId { get; set; }
+
+    [SupplyParameterFromForm]
+    private Scoreboard? Scoreboard { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        using var context = DbFactory.CreateDbContext();
+        Scoreboard ??= await context.Scoreboard.FirstOrDefaultAsync(m => m.ScoreboardId == ScoreboardId);
+
+        if (Scoreboard is null)
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
+    }
+
+    // To protect from overposting attacks, enable the specific properties you want to bind to.
+    // For more information, see https://learn.microsoft.com/aspnet/core/blazor/forms/#mitigate-overposting-attacks.
+    private async Task UpdateScoreboard()
+    {
+        using var context = DbFactory.CreateDbContext();
+        context.Attach(Scoreboard!).State = EntityState.Modified;
+
+        try
+        {
+            await context.SaveChangesAsync();
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            if (!ScoreboardExists(Scoreboard!.ScoreboardId))
+            {
+                NavigationManager.NavigateTo("notfound");
+            }
+            else
+            {
+                throw;
+            }
+        }
+
+        NavigationManager.NavigateTo("/scoreboards");
+    }
+
+    private bool ScoreboardExists(int scoreboardid)
+    {
+        using var context = DbFactory.CreateDbContext();
+        return context.Scoreboard.Any(e => e.ScoreboardId == scoreboardid);
+    }
+}

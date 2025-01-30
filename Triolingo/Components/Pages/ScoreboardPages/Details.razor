@@ -1,0 +1,58 @@
+﻿@page "/scoreboards/details"
+@using Microsoft.EntityFrameworkCore
+@using Triolingo.Domain
+@inject IDbContextFactory<Triolingo.Data.TriolingoContext> DbFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>Details</PageTitle>
+
+<h1>Details</h1>
+
+<div>
+    <h2>Scoreboard</h2>
+    <hr />
+    @if (scoreboard is null)
+    {
+        <p><em>Loading...</em></p>
+    }
+    else {
+        <dl class="row">
+            <dt class="col-sm-2">TotalScore</dt>
+            <dd class="col-sm-10">@scoreboard.TotalScore</dd>
+            <dt class="col-sm-2">UserId</dt>
+            <dd class="col-sm-10">@scoreboard.UserId</dd>
+            <dt class="col-sm-2">LanguageId</dt>
+            <dd class="col-sm-10">@scoreboard.LanguageId</dd>
+            <dt class="col-sm-2">DateCreated</dt>
+            <dd class="col-sm-10">@scoreboard.DateCreated</dd>
+            <dt class="col-sm-2">DateUpdated</dt>
+            <dd class="col-sm-10">@scoreboard.DateUpdated</dd>
+            <dt class="col-sm-2">CreatedBy</dt>
+            <dd class="col-sm-10">@scoreboard.CreatedBy</dd>
+            <dt class="col-sm-2">UpdatedBy</dt>
+            <dd class="col-sm-10">@scoreboard.UpdatedBy</dd>
+        </dl>
+        <div>
+            <a href="@($"/scoreboards/edit?scoreboardid={scoreboard.ScoreboardId}")">Edit</a> |
+            <a href="@($"/scoreboards")">Back to List</a>
+        </div>
+    }
+</div>
+
+@code {
+    private Scoreboard? scoreboard;
+
+    [SupplyParameterFromQuery]
+    private int ScoreboardId { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        using var context = DbFactory.CreateDbContext();
+        scoreboard = await context.Scoreboard.FirstOrDefaultAsync(m => m.ScoreboardId == ScoreboardId);
+
+        if (scoreboard is null)
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
+    }
+}

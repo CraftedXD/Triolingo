@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Triolingo.Configurations.Entities;
 using Triolingo.Data;
+using Triolingo.Domain;
 
 namespace Triolingo.Data
 {
@@ -33,5 +34,7 @@ namespace Triolingo.Data
 
             builder.ApplyConfiguration(new QuestionSeed());
         }
+        public DbSet<Triolingo.Domain.Community> Community { get; set; } = default!;
+        public DbSet<Triolingo.Domain.Scoreboard> Scoreboard { get; set; } = default!;
     }
 }

@@ -1,0 +1,83 @@
+﻿@page "/communities/delete"
+@using Microsoft.EntityFrameworkCore
+@using Triolingo.Domain
+@inject IDbContextFactory<Triolingo.Data.TriolingoContext> DbFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>Delete</PageTitle>
+
+<h1>Delete</h1>
+
+<p>Are you sure you want to delete this?</p>
+<div>
+    <h2>Community</h2>
+    <hr />
+    @if (community is null)
+    {
+        <p><em>Loading...</em></p>
+    }
+    else {
+        <dl class="row">
+            <dt class="col-sm-2">ConversationTopic</dt>
+            <dd class="col-sm-10">@community.ConversationTopic</dd>
+        </dl>
+        <dl class="row">
+            <dt class="col-sm-2">Conversation</dt>
+            <dd class="col-sm-10">@community.Conversation</dd>
+        </dl>
+        <dl class="row">
+            <dt class="col-sm-2">LanguageId</dt>
+            <dd class="col-sm-10">@community.LanguageId</dd>
+        </dl>
+        <dl class="row">
+            <dt class="col-sm-2">UserId</dt>
+            <dd class="col-sm-10">@community.UserId</dd>
+        </dl>
+        <dl class="row">
+            <dt class="col-sm-2">DateCreated</dt>
+            <dd class="col-sm-10">@community.DateCreated</dd>
+        </dl>
+        <dl class="row">
+            <dt class="col-sm-2">DateUpdated</dt>
+            <dd class="col-sm-10">@community.DateUpdated</dd>
+        </dl>
+        <dl class="row">
+            <dt class="col-sm-2">CreatedBy</dt>
+            <dd class="col-sm-10">@community.CreatedBy</dd>
+        </dl>
+        <dl class="row">
+            <dt class="col-sm-2">UpdatedBy</dt>
+            <dd class="col-sm-10">@community.UpdatedBy</dd>
+        </dl>
+        <EditForm method="post" Model="community" OnValidSubmit="DeleteCommunity" FormName="delete" Enhance>
+            <button type="submit" class="btn btn-danger" disabled="@(community is null)">Delete</button> |
+            <a href="/communities">Back to List</a>
+        </EditForm>
+    }
+</div>
+
+@code {
+    private Community? community;
+
+    [SupplyParameterFromQuery]
+    private int CommunityId { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        using var context = DbFactory.CreateDbContext();
+        community = await context.Community.FirstOrDefaultAsync(m => m.CommunityId == CommunityId);
+
+        if (community is null)
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
+    }
+
+    private async Task DeleteCommunity()
+    {
+        using var context = DbFactory.CreateDbContext();
+        context.Community.Remove(community!);
+        await context.SaveChangesAsync();
+        NavigationManager.NavigateTo("/communities");
+    }
+}

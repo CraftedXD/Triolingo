@@ -1,0 +1,74 @@
+﻿@page "/scoreboards/create"
+@using Microsoft.EntityFrameworkCore
+@using Triolingo.Domain
+@inject IDbContextFactory<Triolingo.Data.TriolingoContext> DbFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>Create</PageTitle>
+
+<h1>Create</h1>
+
+<h2>Scoreboard</h2>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <EditForm method="post" Model="Scoreboard" OnValidSubmit="AddScoreboard" FormName="create" Enhance>
+            <DataAnnotationsValidator />
+            <ValidationSummary class="text-danger" role="alert"/>
+            <div class="mb-3">
+                <label for="totalscore" class="form-label">TotalScore:</label> 
+                <InputNumber id="totalscore" @bind-Value="Scoreboard.TotalScore" class="form-control" /> 
+                <ValidationMessage For="() => Scoreboard.TotalScore" class="text-danger" /> 
+            </div>        
+            <div class="mb-3">
+                <label for="userid" class="form-label">UserId:</label> 
+                <InputText id="userid" @bind-Value="Scoreboard.UserId" class="form-control" /> 
+                <ValidationMessage For="() => Scoreboard.UserId" class="text-danger" /> 
+            </div>        
+            <div class="mb-3">
+                <label for="languageid" class="form-label">LanguageId:</label> 
+                <InputNumber id="languageid" @bind-Value="Scoreboard.LanguageId" class="form-control" /> 
+                <ValidationMessage For="() => Scoreboard.LanguageId" class="text-danger" /> 
+            </div>        
+            <div class="mb-3">
+                <label for="datecreated" class="form-label">DateCreated:</label> 
+                <InputDate id="datecreated" @bind-Value="Scoreboard.DateCreated" class="form-control" /> 
+                <ValidationMessage For="() => Scoreboard.DateCreated" class="text-danger" /> 
+            </div>        
+            <div class="mb-3">
+                <label for="dateupdated" class="form-label">DateUpdated:</label> 
+                <InputDate id="dateupdated" @bind-Value="Scoreboard.DateUpdated" class="form-control" /> 
+                <ValidationMessage For="() => Scoreboard.DateUpdated" class="text-danger" /> 
+            </div>        
+            <div class="mb-3">
+                <label for="createdby" class="form-label">CreatedBy:</label> 
+                <InputText id="createdby" @bind-Value="Scoreboard.CreatedBy" class="form-control" /> 
+                <ValidationMessage For="() => Scoreboard.CreatedBy" class="text-danger" /> 
+            </div>        
+            <div class="mb-3">
+                <label for="updatedby" class="form-label">UpdatedBy:</label> 
+                <InputText id="updatedby" @bind-Value="Scoreboard.UpdatedBy" class="form-control" /> 
+                <ValidationMessage For="() => Scoreboard.UpdatedBy" class="text-danger" /> 
+            </div>        
+            <button type="submit" class="btn btn-primary">Create</button>
+        </EditForm>
+    </div>
+</div>
+
+<div>
+    <a href="/scoreboards">Back to List</a>
+</div>
+
+@code {
+    [SupplyParameterFromForm]
+    private Scoreboard Scoreboard { get; set; } = new();
+
+    // To protect from overposting attacks, see https://learn.microsoft.com/aspnet/core/blazor/forms/#mitigate-overposting-attacks.
+    private async Task AddScoreboard()
+    {
+        using var context = DbFactory.CreateDbContext();
+        context.Scoreboard.Add(Scoreboard);
+        await context.SaveChangesAsync();
+        NavigationManager.NavigateTo("/scoreboards");
+    }
+}

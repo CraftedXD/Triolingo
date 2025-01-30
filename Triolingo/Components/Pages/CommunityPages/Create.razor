@@ -1,0 +1,87 @@
+﻿@page "/communities/create"
+@using Microsoft.EntityFrameworkCore
+@using Triolingo.Domain
+@inject IDbContextFactory<Triolingo.Data.TriolingoContext> DbFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>Create</PageTitle>
+
+<h1>Create</h1>
+
+<h2>Community</h2>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <EditForm method="post" Model="Community" OnValidSubmit="AddCommunity" FormName="create" Enhance>
+            <DataAnnotationsValidator />
+            <ValidationSummary class="text-danger" role="alert" />
+            <div class="mb-3">
+                <label for="conversationtopic" class="form-label">ConversationTopic:</label>
+                <InputText id="conversationtopic" @bind-Value="Community.ConversationTopic" class="form-control" />
+                <ValidationMessage For="() => Community.ConversationTopic" class="text-danger" />
+            </div>
+            <div class="mb-3">
+                <label for="conversation" class="form-label">Conversation:</label>
+                <InputText id="conversation" @bind-Value="Community.Conversation" class="form-control" />
+                <ValidationMessage For="() => Community.Conversation" class="text-danger" />
+            </div>
+            <div class="mb-3">
+                <label for="languageid" class="form-label">Language:</label>
+                <InputSelect id="languageid" @bind-Value="Community.LanguageId" class="form-control">
+                    <option value="">Select a language</option>
+                    @foreach (var language in Languages)
+                    {
+                        <option value="@language.Id">@language.Name</option>
+                    }
+                </InputSelect>
+                <ValidationMessage For="() => Community.LanguageId" class="text-danger" />
+            </div>
+            
+            <div class="mb-3">
+                <label for="datecreated" class="form-label">DateCreated:</label>
+                <InputDate id="datecreated" @bind-Value="Community.DateCreated" class="form-control" />
+                <ValidationMessage For="() => Community.DateCreated" class="text-danger" />
+            </div>
+            
+            <div class="mb-3">
+                <label for="createdby" class="form-label">CreatedBy:</label>
+                <InputText id="createdby" @bind-Value="Community.CreatedBy" class="form-control" />
+                <ValidationMessage For="() => Community.CreatedBy" class="text-danger" />
+            </div>
+            
+            <button type="submit" class="btn btn-primary">Post</button>
+        </EditForm>
+    </div>
+</div>
+
+<div>
+    <a href="/communities">Back to List</a>
+</div>
+
+@code {
+    [SupplyParameterFromForm]
+    private Community Community { get; set; } = new();
+
+    // Define a list of languages with their IDs and names
+    private List<LanguageOption> Languages = new List<LanguageOption>
+    {
+        new LanguageOption { Id = 1, Name = "Japanese" },
+        new LanguageOption { Id = 2, Name = "Chinese" }
+    };
+
+    // Class to represent a language option
+    private class LanguageOption
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+    }
+
+    // To protect from overposting attacks, see https://learn.microsoft.com/aspnet/core/blazor/forms/#mitigate-overposting-attacks.
+    private async Task AddCommunity()
+    {
+        using var context = DbFactory.CreateDbContext();
+        context.Community.Add(Community);
+        await context.SaveChangesAsync();
+        NavigationManager.NavigateTo("/communities");
+    }
+}

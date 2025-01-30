@@ -1,0 +1,42 @@
+﻿@page "/scoreboards"
+@using Microsoft.EntityFrameworkCore
+@using Microsoft.AspNetCore.Components.QuickGrid
+@using Triolingo.Domain
+@using Triolingo.Data
+@implements IAsyncDisposable
+@inject IDbContextFactory<Triolingo.Data.TriolingoContext> DbFactory
+
+<PageTitle>Index</PageTitle>
+
+<h1>Index</h1>
+
+<p>
+    <a href="scoreboards/create">Create New</a>
+</p>
+
+<QuickGrid Class="table" Items="context.Scoreboard">
+    <PropertyColumn Property="scoreboard => scoreboard.TotalScore" />
+    <PropertyColumn Property="scoreboard => scoreboard.UserId" />
+    <PropertyColumn Property="scoreboard => scoreboard.LanguageId" />
+    <PropertyColumn Property="scoreboard => scoreboard.DateCreated" />
+    <PropertyColumn Property="scoreboard => scoreboard.DateUpdated" />
+    <PropertyColumn Property="scoreboard => scoreboard.CreatedBy" />
+    <PropertyColumn Property="scoreboard => scoreboard.UpdatedBy" />
+
+    <TemplateColumn Context="scoreboard">
+        <a href="@($"scoreboards/edit?scoreboardid={scoreboard.ScoreboardId}")">Edit</a> |
+        <a href="@($"scoreboards/details?scoreboardid={scoreboard.ScoreboardId}")">Details</a> |
+        <a href="@($"scoreboards/delete?scoreboardid={scoreboard.ScoreboardId}")">Delete</a>
+    </TemplateColumn>
+</QuickGrid>
+
+@code {
+    private TriolingoContext context = default!;
+
+    protected override void OnInitialized()
+    {
+        context = DbFactory.CreateDbContext();
+    }
+
+    public async ValueTask DisposeAsync() => await context.DisposeAsync();
+}

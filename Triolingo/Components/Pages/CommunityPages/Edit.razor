@@ -1,0 +1,124 @@
+﻿@page "/communities/edit"
+@using Microsoft.EntityFrameworkCore
+@using Triolingo.Domain
+@inject IDbContextFactory<Triolingo.Data.TriolingoContext> DbFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>Edit</PageTitle>
+
+<h1>Edit</h1>
+
+<h2>Community</h2>
+<hr />
+@if (Community is null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <div class="row">
+        <div class="col-md-4">
+            <EditForm method="post" Model="Community" OnValidSubmit="UpdateCommunity" FormName="edit" Enhance>
+                <DataAnnotationsValidator />
+                <ValidationSummary role="alert"/>
+                <input type="hidden" name="Community.CommunityId" value="@Community.CommunityId" />
+                <div class="mb-3">
+                    <label for="conversationtopic" class="form-label">ConversationTopic:</label>
+                    <InputText id="conversationtopic" @bind-Value="Community.ConversationTopic" class="form-control" />
+                    <ValidationMessage For="() => Community.ConversationTopic" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="conversation" class="form-label">Conversation:</label>
+                    <InputText id="conversation" @bind-Value="Community.Conversation" class="form-control" />
+                    <ValidationMessage For="() => Community.Conversation" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="languageid" class="form-label">LanguageId:</label>
+                    <InputNumber id="languageid" @bind-Value="Community.LanguageId" class="form-control" />
+                    <ValidationMessage For="() => Community.LanguageId" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="userid" class="form-label">UserId:</label>
+                    <InputNumber id="userid" @bind-Value="Community.UserId" class="form-control" />
+                    <ValidationMessage For="() => Community.UserId" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="datecreated" class="form-label">DateCreated:</label>
+                    <InputDate id="datecreated" @bind-Value="Community.DateCreated" class="form-control" />
+                    <ValidationMessage For="() => Community.DateCreated" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="dateupdated" class="form-label">DateUpdated:</label>
+                    <InputDate id="dateupdated" @bind-Value="Community.DateUpdated" class="form-control" />
+                    <ValidationMessage For="() => Community.DateUpdated" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="createdby" class="form-label">CreatedBy:</label>
+                    <InputText id="createdby" @bind-Value="Community.CreatedBy" class="form-control" />
+                    <ValidationMessage For="() => Community.CreatedBy" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="updatedby" class="form-label">UpdatedBy:</label>
+                    <InputText id="updatedby" @bind-Value="Community.UpdatedBy" class="form-control" />
+                    <ValidationMessage For="() => Community.UpdatedBy" class="text-danger" />
+                </div>
+                <button type="submit" class="btn btn-primary">Save</button>
+            </EditForm>
+        </div>
+    </div>
+}
+
+<div>
+    <a href="/communities">Back to List</a>
+</div>
+
+@code {
+    [SupplyParameterFromQuery]
+    private int CommunityId { get; set; }
+
+    [SupplyParameterFromForm]
+    private Community? Community { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        using var context = DbFactory.CreateDbContext();
+        Community ??= await context.Community.FirstOrDefaultAsync(m => m.CommunityId == CommunityId);
+
+        if (Community is null)
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
+    }
+
+    // To protect from overposting attacks, enable the specific properties you want to bind to.
+    // For more information, see https://learn.microsoft.com/aspnet/core/blazor/forms/#mitigate-overposting-attacks.
+    private async Task UpdateCommunity()
+    {
+        using var context = DbFactory.CreateDbContext();
+        context.Attach(Community!).State = EntityState.Modified;
+
+        try
+        {
+            await context.SaveChangesAsync();
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            if (!CommunityExists(Community!.CommunityId))
+            {
+                NavigationManager.NavigateTo("notfound");
+            }
+            else
+            {
+                throw;
+            }
+        }
+
+        NavigationManager.NavigateTo("/communities");
+    }
+
+    private bool CommunityExists(int communityid)
+    {
+        using var context = DbFactory.CreateDbContext();
+        return context.Community.Any(e => e.CommunityId == communityid);
+    }
+}

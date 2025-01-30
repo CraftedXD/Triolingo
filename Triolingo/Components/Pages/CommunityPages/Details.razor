@@ -1,0 +1,60 @@
+﻿@page "/communities/details"
+@using Microsoft.EntityFrameworkCore
+@using Triolingo.Domain
+@inject IDbContextFactory<Triolingo.Data.TriolingoContext> DbFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>Details</PageTitle>
+
+<h1>Details</h1>
+
+<div>
+    <h2>Community</h2>
+    <hr />
+    @if (community is null)
+    {
+        <p><em>Loading...</em></p>
+    }
+    else {
+        <dl class="row">
+            <dt class="col-sm-2">ConversationTopic</dt>
+            <dd class="col-sm-10">@community.ConversationTopic</dd>
+            <dt class="col-sm-2">Conversation</dt>
+            <dd class="col-sm-10">@community.Conversation</dd>
+            <dt class="col-sm-2">LanguageId</dt>
+            <dd class="col-sm-10">@community.LanguageId</dd>
+            <dt class="col-sm-2">UserId</dt>
+            <dd class="col-sm-10">@community.UserId</dd>
+            <dt class="col-sm-2">DateCreated</dt>
+            <dd class="col-sm-10">@community.DateCreated</dd>
+            <dt class="col-sm-2">DateUpdated</dt>
+            <dd class="col-sm-10">@community.DateUpdated</dd>
+            <dt class="col-sm-2">CreatedBy</dt>
+            <dd class="col-sm-10">@community.CreatedBy</dd>
+            <dt class="col-sm-2">UpdatedBy</dt>
+            <dd class="col-sm-10">@community.UpdatedBy</dd>
+        </dl>
+        <div>
+            <a href="@($"/communities/edit?communityid={community.CommunityId}")">Edit</a> |
+            <a href="@($"/communities")">Back to List</a>
+        </div>
+    }
+</div>
+
+@code {
+    private Community? community;
+
+    [SupplyParameterFromQuery]
+    private int CommunityId { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        using var context = DbFactory.CreateDbContext();
+        community = await context.Community.FirstOrDefaultAsync(m => m.CommunityId == CommunityId);
+
+        if (community is null)
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
+    }
+}

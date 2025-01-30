@@ -1,0 +1,58 @@
+﻿@page "/communities"
+@using Microsoft.EntityFrameworkCore
+@using Microsoft.AspNetCore.Components.QuickGrid
+@using Triolingo.Domain
+@using Triolingo.Data
+@implements IAsyncDisposable
+@inject IDbContextFactory<Triolingo.Data.TriolingoContext> DbFactory
+
+<PageTitle>Community</PageTitle>
+
+<h1>Community</h1>
+
+<p>
+    <a href="communities/create">Create New</a>
+</p>
+
+<QuickGrid Class="table" Items="context.Community">
+    <PropertyColumn Property="community => community.ConversationTopic" />
+    <PropertyColumn Property="community => community.Conversation" />
+
+    <!-- Display LanguageId with the column header "LanguageId" and corresponding language name -->
+    <TemplateColumn Title="LanguageId" Context="community">
+        @if (community.LanguageId == 1)
+        {
+            @:Japanese
+        }
+        else if (community.LanguageId == 2)
+        {
+            @:Chinese
+        }
+        else
+        {
+            @:Unknown
+        }
+    </TemplateColumn>
+
+    <PropertyColumn Property="community => community.DateCreated" />
+    <PropertyColumn Property="community => community.CreatedBy" />
+    
+    <AuthorizeView Roles="Administrator">
+    <TemplateColumn Context="community">
+        <a href="@($"communities/edit?communityid={community.CommunityId}")">Edit</a> |
+        <a href="@($"communities/details?communityid={community.CommunityId}")">Details</a> |
+        <a href="@($"communities/delete?communityid={community.CommunityId}")">Delete</a>
+    </TemplateColumn>
+    </AuthorizeView>
+</QuickGrid>
+
+@code {
+    private TriolingoContext context = default!;
+
+    protected override void OnInitialized()
+    {
+        context = DbFactory.CreateDbContext();
+    }
+
+    public async ValueTask DisposeAsync() => await context.DisposeAsync();
+}
