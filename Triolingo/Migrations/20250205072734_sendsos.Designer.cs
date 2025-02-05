@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Triolingo.Data;
 
@@ -11,9 +12,11 @@ using Triolingo.Data;
 namespace Triolingo.Migrations
 {
     [DbContext(typeof(TriolingoContext))]
-    partial class TriolingoContextModelSnapshot : ModelSnapshot
+    [Migration("20250205072734_sendsos")]
+    partial class sendsos
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -237,9 +240,6 @@ namespace Triolingo.Migrations
                     b.Property<int>("UserProgress")
                         .HasColumnType("int");
 
-                    b.Property<int>("UserScore")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
 
                     b.HasIndex("NormalizedEmail")
@@ -257,7 +257,7 @@ namespace Triolingo.Migrations
                         {
                             Id = "3781efa7-66dc-47f0-860f-e506d04102e4",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "d7529e32-78d9-4cdc-a9d1-88bf6864b200",
+                            ConcurrencyStamp = "8f626070-7321-4d41-8d32-38c26faaaa1c",
                             Email = "admin@localhost.com",
                             EmailConfirmed = true,
                             FirstName = "Admin",
@@ -265,13 +265,12 @@ namespace Triolingo.Migrations
                             LockoutEnabled = false,
                             NormalizedEmail = "ADMIN@LOCALHOST.COM",
                             NormalizedUserName = "ADMIN@LOCALHOST.COM",
-                            PasswordHash = "AQAAAAIAAYagAAAAECzkd2BlCIKJeSq12y8sp+ftVx4Se6vLtoh4LIZp2rQ7Gds/tv0aNRstFpA53x9ZhA==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEJRu18XWiO0v5QPCO18GrsysHpBOldVP+4QBk36qP3TAzZ7sXGQSta1rK41A5UH5JA==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "2a28f2a8-6002-4dca-a1a5-241b6f777ca1",
+                            SecurityStamp = "97bf5b3b-f5b4-487c-aced-15973d0b7ed1",
                             TwoFactorEnabled = false,
                             UserName = "admin@localhost.com",
-                            UserProgress = 0,
-                            UserScore = 0
+                            UserProgress = 0
                         });
                 });
 
@@ -353,8 +352,8 @@ namespace Triolingo.Migrations
                         {
                             LanguageId = 1,
                             CreatedBy = "System",
-                            DateCreated = new DateTime(2025, 2, 5, 15, 32, 22, 532, DateTimeKind.Local).AddTicks(594),
-                            DateUpdated = new DateTime(2025, 2, 5, 15, 32, 22, 532, DateTimeKind.Local).AddTicks(641),
+                            DateCreated = new DateTime(2025, 2, 5, 15, 27, 33, 139, DateTimeKind.Local).AddTicks(1729),
+                            DateUpdated = new DateTime(2025, 2, 5, 15, 27, 33, 139, DateTimeKind.Local).AddTicks(1770),
                             LessonId = 0,
                             Name = "Japanese",
                             UpdatedBy = "System",
@@ -364,8 +363,8 @@ namespace Triolingo.Migrations
                         {
                             LanguageId = 2,
                             CreatedBy = "System",
-                            DateCreated = new DateTime(2025, 2, 5, 15, 32, 22, 532, DateTimeKind.Local).AddTicks(642),
-                            DateUpdated = new DateTime(2025, 2, 5, 15, 32, 22, 532, DateTimeKind.Local).AddTicks(643),
+                            DateCreated = new DateTime(2025, 2, 5, 15, 27, 33, 139, DateTimeKind.Local).AddTicks(1777),
+                            DateUpdated = new DateTime(2025, 2, 5, 15, 27, 33, 139, DateTimeKind.Local).AddTicks(1778),
                             LessonId = 0,
                             Name = "Chinese",
                             UpdatedBy = "System",
@@ -414,8 +413,8 @@ namespace Triolingo.Migrations
                         {
                             LessonId = 1,
                             CreatedBy = "System",
-                            DateCreated = new DateTime(2025, 2, 5, 15, 32, 22, 532, DateTimeKind.Local).AddTicks(1030),
-                            DateUpdated = new DateTime(2025, 2, 5, 15, 32, 22, 532, DateTimeKind.Local).AddTicks(1031),
+                            DateCreated = new DateTime(2025, 2, 5, 15, 27, 33, 139, DateTimeKind.Local).AddTicks(2158),
+                            DateUpdated = new DateTime(2025, 2, 5, 15, 27, 33, 139, DateTimeKind.Local).AddTicks(2159),
                             LanguageId = 1,
                             LessonContent = "あ is pronounced like 'ah!' like when you come to a realization. It also sounds like the 'a' in 'car'.\nい is pronounced like the 'ee' in 'eel'.\nう is pronounced like theu in 'UNO' the card game, or the number one in Spanish.\nえ is pronounced like the e in 'egg'\nお is pronounced like you're saying 'oh.' It also sounds like the o in 'origami'.",
                             LessonName = "Japanese Lesson 1",
@@ -426,8 +425,8 @@ namespace Triolingo.Migrations
                         {
                             LessonId = 2,
                             CreatedBy = "System",
-                            DateCreated = new DateTime(2025, 2, 5, 15, 32, 22, 532, DateTimeKind.Local).AddTicks(1032),
-                            DateUpdated = new DateTime(2025, 2, 5, 15, 32, 22, 532, DateTimeKind.Local).AddTicks(1032),
+                            DateCreated = new DateTime(2025, 2, 5, 15, 27, 33, 139, DateTimeKind.Local).AddTicks(2163),
+                            DateUpdated = new DateTime(2025, 2, 5, 15, 27, 33, 139, DateTimeKind.Local).AddTicks(2164),
                             LanguageId = 1,
                             LessonContent = "か is just the K sound plus あ, making a ka sound. It's pronounced like ka in 'karma.'\nき is just the K sound plus い, making a ki sound. It sounds ike the word 'key'\nく is just the K sound plus う, making a ku sound. It's pronounced 'coo' like both syllables of the word 'cuckoo'.\nけ is just the K sound plus え, making a ke sound. It's pronounced like ke in 'kelp.'\nこ is just the K sound plus お, making a ko sound. It's pronounced like co in 'coin'.",
                             LessonName = "Japanese Lesson 2",
@@ -438,8 +437,8 @@ namespace Triolingo.Migrations
                         {
                             LessonId = 3,
                             CreatedBy = "System",
-                            DateCreated = new DateTime(2025, 2, 5, 15, 32, 22, 532, DateTimeKind.Local).AddTicks(1034),
-                            DateUpdated = new DateTime(2025, 2, 5, 15, 32, 22, 532, DateTimeKind.Local).AddTicks(1036),
+                            DateCreated = new DateTime(2025, 2, 5, 15, 27, 33, 139, DateTimeKind.Local).AddTicks(2167),
+                            DateUpdated = new DateTime(2025, 2, 5, 15, 27, 33, 139, DateTimeKind.Local).AddTicks(2168),
                             LanguageId = 2,
                             LessonContent = "一 is the number 1 in chinese and it's pronouced 'yī'\n二 is the number 2 in chinese and it's pronouced 'èr'\n三 in the number 3 in chinese it's pronouced 'sān'\n四 in the number 4 in chinese it's pronouced 'sì'\n五 in the number 4 in chinese it's pronouced 'wǔ'\n",
                             LessonName = "Chinese Lesson 1",
@@ -450,8 +449,8 @@ namespace Triolingo.Migrations
                         {
                             LessonId = 4,
                             CreatedBy = "System",
-                            DateCreated = new DateTime(2025, 2, 5, 15, 32, 22, 532, DateTimeKind.Local).AddTicks(1037),
-                            DateUpdated = new DateTime(2025, 2, 5, 15, 32, 22, 532, DateTimeKind.Local).AddTicks(1037),
+                            DateCreated = new DateTime(2025, 2, 5, 15, 27, 33, 139, DateTimeKind.Local).AddTicks(2171),
+                            DateUpdated = new DateTime(2025, 2, 5, 15, 27, 33, 139, DateTimeKind.Local).AddTicks(2172),
                             LanguageId = 2,
                             LessonContent = "六 is the number 6 in chinese and it's pronouced 'liù'\n七 is the number 7 in chinese and it's pronouced 'qī'\n八 in the number 8 in chinese it's pronouced 'bā'\n九 in the number 9 in chinese it's pronouced 'jiǔ'\n十 in the number 10 in chinese it's pronouced 'shí'\n",
                             LessonName = "Chinese Lesson 2",
@@ -502,8 +501,8 @@ namespace Triolingo.Migrations
                             QuestionId = 1,
                             CorrectAnswer = "a",
                             CreatedBy = "System",
-                            DateCreated = new DateTime(2025, 2, 5, 15, 32, 22, 532, DateTimeKind.Local).AddTicks(1341),
-                            DateUpdated = new DateTime(2025, 2, 5, 15, 32, 22, 532, DateTimeKind.Local).AddTicks(1341),
+                            DateCreated = new DateTime(2025, 2, 5, 15, 27, 33, 139, DateTimeKind.Local).AddTicks(2709),
+                            DateUpdated = new DateTime(2025, 2, 5, 15, 27, 33, 139, DateTimeKind.Local).AddTicks(2710),
                             QuestionText = "What is this hiragana? あ",
                             QuizId = 1,
                             UpdatedBy = "System",
@@ -514,8 +513,8 @@ namespace Triolingo.Migrations
                             QuestionId = 2,
                             CorrectAnswer = "i",
                             CreatedBy = "System",
-                            DateCreated = new DateTime(2025, 2, 5, 15, 32, 22, 532, DateTimeKind.Local).AddTicks(1342),
-                            DateUpdated = new DateTime(2025, 2, 5, 15, 32, 22, 532, DateTimeKind.Local).AddTicks(1343),
+                            DateCreated = new DateTime(2025, 2, 5, 15, 27, 33, 139, DateTimeKind.Local).AddTicks(2713),
+                            DateUpdated = new DateTime(2025, 2, 5, 15, 27, 33, 139, DateTimeKind.Local).AddTicks(2714),
                             QuestionText = "What is this hiragana? い",
                             QuizId = 1,
                             UpdatedBy = "System",
@@ -526,8 +525,8 @@ namespace Triolingo.Migrations
                             QuestionId = 3,
                             CorrectAnswer = "u",
                             CreatedBy = "System",
-                            DateCreated = new DateTime(2025, 2, 5, 15, 32, 22, 532, DateTimeKind.Local).AddTicks(1344),
-                            DateUpdated = new DateTime(2025, 2, 5, 15, 32, 22, 532, DateTimeKind.Local).AddTicks(1344),
+                            DateCreated = new DateTime(2025, 2, 5, 15, 27, 33, 139, DateTimeKind.Local).AddTicks(2717),
+                            DateUpdated = new DateTime(2025, 2, 5, 15, 27, 33, 139, DateTimeKind.Local).AddTicks(2718),
                             QuestionText = "What is this hiragana? う",
                             QuizId = 1,
                             UpdatedBy = "System",
@@ -538,8 +537,8 @@ namespace Triolingo.Migrations
                             QuestionId = 4,
                             CorrectAnswer = "e",
                             CreatedBy = "System",
-                            DateCreated = new DateTime(2025, 2, 5, 15, 32, 22, 532, DateTimeKind.Local).AddTicks(1346),
-                            DateUpdated = new DateTime(2025, 2, 5, 15, 32, 22, 532, DateTimeKind.Local).AddTicks(1346),
+                            DateCreated = new DateTime(2025, 2, 5, 15, 27, 33, 139, DateTimeKind.Local).AddTicks(2721),
+                            DateUpdated = new DateTime(2025, 2, 5, 15, 27, 33, 139, DateTimeKind.Local).AddTicks(2722),
                             QuestionText = "What is this hiragana? え",
                             QuizId = 1,
                             UpdatedBy = "System",
@@ -550,8 +549,8 @@ namespace Triolingo.Migrations
                             QuestionId = 5,
                             CorrectAnswer = "o",
                             CreatedBy = "System",
-                            DateCreated = new DateTime(2025, 2, 5, 15, 32, 22, 532, DateTimeKind.Local).AddTicks(1352),
-                            DateUpdated = new DateTime(2025, 2, 5, 15, 32, 22, 532, DateTimeKind.Local).AddTicks(1352),
+                            DateCreated = new DateTime(2025, 2, 5, 15, 27, 33, 139, DateTimeKind.Local).AddTicks(2729),
+                            DateUpdated = new DateTime(2025, 2, 5, 15, 27, 33, 139, DateTimeKind.Local).AddTicks(2730),
                             QuestionText = "What is this hiragana? お",
                             QuizId = 1,
                             UpdatedBy = "System",
@@ -562,8 +561,8 @@ namespace Triolingo.Migrations
                             QuestionId = 6,
                             CorrectAnswer = "ka",
                             CreatedBy = "System",
-                            DateCreated = new DateTime(2025, 2, 5, 15, 32, 22, 532, DateTimeKind.Local).AddTicks(1353),
-                            DateUpdated = new DateTime(2025, 2, 5, 15, 32, 22, 532, DateTimeKind.Local).AddTicks(1354),
+                            DateCreated = new DateTime(2025, 2, 5, 15, 27, 33, 139, DateTimeKind.Local).AddTicks(2733),
+                            DateUpdated = new DateTime(2025, 2, 5, 15, 27, 33, 139, DateTimeKind.Local).AddTicks(2734),
                             QuestionText = "What is this hiragana? か",
                             QuizId = 2,
                             UpdatedBy = "System",
@@ -574,8 +573,8 @@ namespace Triolingo.Migrations
                             QuestionId = 7,
                             CorrectAnswer = "ki",
                             CreatedBy = "System",
-                            DateCreated = new DateTime(2025, 2, 5, 15, 32, 22, 532, DateTimeKind.Local).AddTicks(1355),
-                            DateUpdated = new DateTime(2025, 2, 5, 15, 32, 22, 532, DateTimeKind.Local).AddTicks(1355),
+                            DateCreated = new DateTime(2025, 2, 5, 15, 27, 33, 139, DateTimeKind.Local).AddTicks(2737),
+                            DateUpdated = new DateTime(2025, 2, 5, 15, 27, 33, 139, DateTimeKind.Local).AddTicks(2738),
                             QuestionText = "What is this hiragana? き",
                             QuizId = 2,
                             UpdatedBy = "System",
@@ -586,8 +585,8 @@ namespace Triolingo.Migrations
                             QuestionId = 8,
                             CorrectAnswer = "ku",
                             CreatedBy = "System",
-                            DateCreated = new DateTime(2025, 2, 5, 15, 32, 22, 532, DateTimeKind.Local).AddTicks(1357),
-                            DateUpdated = new DateTime(2025, 2, 5, 15, 32, 22, 532, DateTimeKind.Local).AddTicks(1357),
+                            DateCreated = new DateTime(2025, 2, 5, 15, 27, 33, 139, DateTimeKind.Local).AddTicks(2741),
+                            DateUpdated = new DateTime(2025, 2, 5, 15, 27, 33, 139, DateTimeKind.Local).AddTicks(2742),
                             QuestionText = "What is this hiragana? く",
                             QuizId = 2,
                             UpdatedBy = "System",
@@ -598,8 +597,8 @@ namespace Triolingo.Migrations
                             QuestionId = 9,
                             CorrectAnswer = "ke",
                             CreatedBy = "System",
-                            DateCreated = new DateTime(2025, 2, 5, 15, 32, 22, 532, DateTimeKind.Local).AddTicks(1358),
-                            DateUpdated = new DateTime(2025, 2, 5, 15, 32, 22, 532, DateTimeKind.Local).AddTicks(1359),
+                            DateCreated = new DateTime(2025, 2, 5, 15, 27, 33, 139, DateTimeKind.Local).AddTicks(2745),
+                            DateUpdated = new DateTime(2025, 2, 5, 15, 27, 33, 139, DateTimeKind.Local).AddTicks(2746),
                             QuestionText = "What is this hiragana? け",
                             QuizId = 2,
                             UpdatedBy = "System",
@@ -610,8 +609,8 @@ namespace Triolingo.Migrations
                             QuestionId = 10,
                             CorrectAnswer = "ko",
                             CreatedBy = "System",
-                            DateCreated = new DateTime(2025, 2, 5, 15, 32, 22, 532, DateTimeKind.Local).AddTicks(1360),
-                            DateUpdated = new DateTime(2025, 2, 5, 15, 32, 22, 532, DateTimeKind.Local).AddTicks(1360),
+                            DateCreated = new DateTime(2025, 2, 5, 15, 27, 33, 139, DateTimeKind.Local).AddTicks(2749),
+                            DateUpdated = new DateTime(2025, 2, 5, 15, 27, 33, 139, DateTimeKind.Local).AddTicks(2750),
                             QuestionText = "What is this hiragana? こ",
                             QuizId = 2,
                             UpdatedBy = "System",
@@ -622,8 +621,8 @@ namespace Triolingo.Migrations
                             QuestionId = 11,
                             CorrectAnswer = "yi",
                             CreatedBy = "System",
-                            DateCreated = new DateTime(2025, 2, 5, 15, 32, 22, 532, DateTimeKind.Local).AddTicks(1362),
-                            DateUpdated = new DateTime(2025, 2, 5, 15, 32, 22, 532, DateTimeKind.Local).AddTicks(1362),
+                            DateCreated = new DateTime(2025, 2, 5, 15, 27, 33, 139, DateTimeKind.Local).AddTicks(2753),
+                            DateUpdated = new DateTime(2025, 2, 5, 15, 27, 33, 139, DateTimeKind.Local).AddTicks(2754),
                             QuestionText = "What is this Character? 一",
                             QuizId = 3,
                             UpdatedBy = "System",
@@ -634,8 +633,8 @@ namespace Triolingo.Migrations
                             QuestionId = 12,
                             CorrectAnswer = "er",
                             CreatedBy = "System",
-                            DateCreated = new DateTime(2025, 2, 5, 15, 32, 22, 532, DateTimeKind.Local).AddTicks(1363),
-                            DateUpdated = new DateTime(2025, 2, 5, 15, 32, 22, 532, DateTimeKind.Local).AddTicks(1364),
+                            DateCreated = new DateTime(2025, 2, 5, 15, 27, 33, 139, DateTimeKind.Local).AddTicks(2757),
+                            DateUpdated = new DateTime(2025, 2, 5, 15, 27, 33, 139, DateTimeKind.Local).AddTicks(2758),
                             QuestionText = "What is this Character? 二",
                             QuizId = 3,
                             UpdatedBy = "System",
@@ -646,8 +645,8 @@ namespace Triolingo.Migrations
                             QuestionId = 13,
                             CorrectAnswer = "san",
                             CreatedBy = "System",
-                            DateCreated = new DateTime(2025, 2, 5, 15, 32, 22, 532, DateTimeKind.Local).AddTicks(1365),
-                            DateUpdated = new DateTime(2025, 2, 5, 15, 32, 22, 532, DateTimeKind.Local).AddTicks(1365),
+                            DateCreated = new DateTime(2025, 2, 5, 15, 27, 33, 139, DateTimeKind.Local).AddTicks(2760),
+                            DateUpdated = new DateTime(2025, 2, 5, 15, 27, 33, 139, DateTimeKind.Local).AddTicks(2761),
                             QuestionText = "What is this Character? 三",
                             QuizId = 3,
                             UpdatedBy = "System",
@@ -658,8 +657,8 @@ namespace Triolingo.Migrations
                             QuestionId = 14,
                             CorrectAnswer = "si",
                             CreatedBy = "System",
-                            DateCreated = new DateTime(2025, 2, 5, 15, 32, 22, 532, DateTimeKind.Local).AddTicks(1367),
-                            DateUpdated = new DateTime(2025, 2, 5, 15, 32, 22, 532, DateTimeKind.Local).AddTicks(1367),
+                            DateCreated = new DateTime(2025, 2, 5, 15, 27, 33, 139, DateTimeKind.Local).AddTicks(2768),
+                            DateUpdated = new DateTime(2025, 2, 5, 15, 27, 33, 139, DateTimeKind.Local).AddTicks(2769),
                             QuestionText = "What is this Character? 四",
                             QuizId = 3,
                             UpdatedBy = "System",
@@ -670,8 +669,8 @@ namespace Triolingo.Migrations
                             QuestionId = 15,
                             CorrectAnswer = "wu",
                             CreatedBy = "System",
-                            DateCreated = new DateTime(2025, 2, 5, 15, 32, 22, 532, DateTimeKind.Local).AddTicks(1368),
-                            DateUpdated = new DateTime(2025, 2, 5, 15, 32, 22, 532, DateTimeKind.Local).AddTicks(1369),
+                            DateCreated = new DateTime(2025, 2, 5, 15, 27, 33, 139, DateTimeKind.Local).AddTicks(2775),
+                            DateUpdated = new DateTime(2025, 2, 5, 15, 27, 33, 139, DateTimeKind.Local).AddTicks(2776),
                             QuestionText = "What is this Character? 五",
                             QuizId = 3,
                             UpdatedBy = "System",
@@ -682,8 +681,8 @@ namespace Triolingo.Migrations
                             QuestionId = 16,
                             CorrectAnswer = "liu",
                             CreatedBy = "System",
-                            DateCreated = new DateTime(2025, 2, 5, 15, 32, 22, 532, DateTimeKind.Local).AddTicks(1370),
-                            DateUpdated = new DateTime(2025, 2, 5, 15, 32, 22, 532, DateTimeKind.Local).AddTicks(1370),
+                            DateCreated = new DateTime(2025, 2, 5, 15, 27, 33, 139, DateTimeKind.Local).AddTicks(2778),
+                            DateUpdated = new DateTime(2025, 2, 5, 15, 27, 33, 139, DateTimeKind.Local).AddTicks(2779),
                             QuestionText = "What is this Character? 六",
                             QuizId = 4,
                             UpdatedBy = "System",
@@ -694,8 +693,8 @@ namespace Triolingo.Migrations
                             QuestionId = 17,
                             CorrectAnswer = "qi",
                             CreatedBy = "System",
-                            DateCreated = new DateTime(2025, 2, 5, 15, 32, 22, 532, DateTimeKind.Local).AddTicks(1372),
-                            DateUpdated = new DateTime(2025, 2, 5, 15, 32, 22, 532, DateTimeKind.Local).AddTicks(1372),
+                            DateCreated = new DateTime(2025, 2, 5, 15, 27, 33, 139, DateTimeKind.Local).AddTicks(2782),
+                            DateUpdated = new DateTime(2025, 2, 5, 15, 27, 33, 139, DateTimeKind.Local).AddTicks(2783),
                             QuestionText = "What is this Character? 七",
                             QuizId = 4,
                             UpdatedBy = "System",
@@ -706,8 +705,8 @@ namespace Triolingo.Migrations
                             QuestionId = 18,
                             CorrectAnswer = "ba",
                             CreatedBy = "System",
-                            DateCreated = new DateTime(2025, 2, 5, 15, 32, 22, 532, DateTimeKind.Local).AddTicks(1373),
-                            DateUpdated = new DateTime(2025, 2, 5, 15, 32, 22, 532, DateTimeKind.Local).AddTicks(1374),
+                            DateCreated = new DateTime(2025, 2, 5, 15, 27, 33, 139, DateTimeKind.Local).AddTicks(2786),
+                            DateUpdated = new DateTime(2025, 2, 5, 15, 27, 33, 139, DateTimeKind.Local).AddTicks(2786),
                             QuestionText = "What is this Character? 八",
                             QuizId = 4,
                             UpdatedBy = "System",
@@ -718,8 +717,8 @@ namespace Triolingo.Migrations
                             QuestionId = 19,
                             CorrectAnswer = "jiu",
                             CreatedBy = "System",
-                            DateCreated = new DateTime(2025, 2, 5, 15, 32, 22, 532, DateTimeKind.Local).AddTicks(1375),
-                            DateUpdated = new DateTime(2025, 2, 5, 15, 32, 22, 532, DateTimeKind.Local).AddTicks(1375),
+                            DateCreated = new DateTime(2025, 2, 5, 15, 27, 33, 139, DateTimeKind.Local).AddTicks(2789),
+                            DateUpdated = new DateTime(2025, 2, 5, 15, 27, 33, 139, DateTimeKind.Local).AddTicks(2790),
                             QuestionText = "What is this Character? 九",
                             QuizId = 4,
                             UpdatedBy = "System",
@@ -730,8 +729,8 @@ namespace Triolingo.Migrations
                             QuestionId = 20,
                             CorrectAnswer = "shi",
                             CreatedBy = "System",
-                            DateCreated = new DateTime(2025, 2, 5, 15, 32, 22, 532, DateTimeKind.Local).AddTicks(1376),
-                            DateUpdated = new DateTime(2025, 2, 5, 15, 32, 22, 532, DateTimeKind.Local).AddTicks(1377),
+                            DateCreated = new DateTime(2025, 2, 5, 15, 27, 33, 139, DateTimeKind.Local).AddTicks(2793),
+                            DateUpdated = new DateTime(2025, 2, 5, 15, 27, 33, 139, DateTimeKind.Local).AddTicks(2794),
                             QuestionText = "What is this Character? 十",
                             QuizId = 4,
                             UpdatedBy = "System",
@@ -777,8 +776,8 @@ namespace Triolingo.Migrations
                         {
                             QuizId = 1,
                             CreatedBy = "System",
-                            DateCreated = new DateTime(2025, 2, 5, 15, 32, 22, 532, DateTimeKind.Local).AddTicks(1174),
-                            DateUpdated = new DateTime(2025, 2, 5, 15, 32, 22, 532, DateTimeKind.Local).AddTicks(1174),
+                            DateCreated = new DateTime(2025, 2, 5, 15, 27, 33, 139, DateTimeKind.Local).AddTicks(2537),
+                            DateUpdated = new DateTime(2025, 2, 5, 15, 27, 33, 139, DateTimeKind.Local).AddTicks(2538),
                             LessonId = 1,
                             LevelDifficultly = 1,
                             QuizTitle = "Japanese Quiz 1",
@@ -788,8 +787,8 @@ namespace Triolingo.Migrations
                         {
                             QuizId = 2,
                             CreatedBy = "System",
-                            DateCreated = new DateTime(2025, 2, 5, 15, 32, 22, 532, DateTimeKind.Local).AddTicks(1176),
-                            DateUpdated = new DateTime(2025, 2, 5, 15, 32, 22, 532, DateTimeKind.Local).AddTicks(1176),
+                            DateCreated = new DateTime(2025, 2, 5, 15, 27, 33, 139, DateTimeKind.Local).AddTicks(2541),
+                            DateUpdated = new DateTime(2025, 2, 5, 15, 27, 33, 139, DateTimeKind.Local).AddTicks(2542),
                             LessonId = 2,
                             LevelDifficultly = 2,
                             QuizTitle = "Japanese Quiz 2",
@@ -799,8 +798,8 @@ namespace Triolingo.Migrations
                         {
                             QuizId = 3,
                             CreatedBy = "System",
-                            DateCreated = new DateTime(2025, 2, 5, 15, 32, 22, 532, DateTimeKind.Local).AddTicks(1177),
-                            DateUpdated = new DateTime(2025, 2, 5, 15, 32, 22, 532, DateTimeKind.Local).AddTicks(1178),
+                            DateCreated = new DateTime(2025, 2, 5, 15, 27, 33, 139, DateTimeKind.Local).AddTicks(2545),
+                            DateUpdated = new DateTime(2025, 2, 5, 15, 27, 33, 139, DateTimeKind.Local).AddTicks(2546),
                             LessonId = 3,
                             LevelDifficultly = 1,
                             QuizTitle = "Chinese Quiz 1",
@@ -810,8 +809,8 @@ namespace Triolingo.Migrations
                         {
                             QuizId = 4,
                             CreatedBy = "System",
-                            DateCreated = new DateTime(2025, 2, 5, 15, 32, 22, 532, DateTimeKind.Local).AddTicks(1179),
-                            DateUpdated = new DateTime(2025, 2, 5, 15, 32, 22, 532, DateTimeKind.Local).AddTicks(1179),
+                            DateCreated = new DateTime(2025, 2, 5, 15, 27, 33, 139, DateTimeKind.Local).AddTicks(2548),
+                            DateUpdated = new DateTime(2025, 2, 5, 15, 27, 33, 139, DateTimeKind.Local).AddTicks(2549),
                             LessonId = 4,
                             LevelDifficultly = 2,
                             QuizTitle = "Chinese Quiz 2",

@@ -1,9 +1,14 @@
 ﻿@page "/quizzes/chinese"
 @using Microsoft.EntityFrameworkCore
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.VisualBasic
 @using Triolingo.Domain
 @using Triolingo.Data
+@rendermode InteractiveServer
 @implements IAsyncDisposable
-@inject IDbContextFactory<Triolingo.Data.TriolingoContext> DbFactory
+@inject IDbContextFactory<TriolingoContext> DbFactory
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject NavigationManager NavigationManager
 
 <PageTitle>Chinese Quiz</PageTitle>
 
@@ -20,20 +25,7 @@
         <br />
     }
 
-    <button class="btn btn-primary" @onclick="CheckAnswers">Check Answers</button>
-
-    @if (showResults)
-    {
-        <h2>Results:</h2>
-        <ul>
-            @foreach (var question in questions)
-            {
-                var userAnswer = userAnswers[question.QuestionId];
-                var isCorrect = userAnswer?.Equals(question.CorrectAnswer, StringComparison.OrdinalIgnoreCase) ?? false;
-                <li>@(isCorrect ? $"✔ {question.QuestionText}: Correct!" : $"✘ {question.QuestionText}: Incorrect (Your Answer: {userAnswer ?? "None"}, Correct: {question.CorrectAnswer})")</li>
-            }
-        </ul>
-    }
+    <button @onclick="SubmitAnswers" class="btn btn-primary">Submit Answers</button>
 }
 else
 {
@@ -44,42 +36,70 @@ else
     private TriolingoContext context = default!;
     private string QuizTitle { get; set; } = "Loading...";
     private List<Question> questions = new();
-    private Dictionary<int, string?> userAnswers = new(); // Stores user input
-    private bool showResults = false;
+    private Dictionary<int, string?> userAnswers = new();
+    private User? currentUser;
+    private int currentLessonOrder = 1;
+    private int quizId = 0; // Store QuizId for saving results
+
 
     protected override async Task OnInitializedAsync()
     {
         context = DbFactory.CreateDbContext();
 
-        // Fetch the quiz for Japanese
-        var quiz = await context.Quiz.FirstOrDefaultAsync(q => q.LessonId == 3);
+        // Get authenticated user
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var userEmail = authState.User.Identity?.Name;
 
-        if (quiz != null)
+        if (userEmail != null)
         {
-            QuizTitle = quiz.QuizTitle;
+            currentUser = await context.User.FirstOrDefaultAsync(u => u.Email == userEmail);
+        }
 
-            // Fetch questions for the quiz
-            questions = await context.Question
-                .Where(q => q.QuizId == quiz.QuizId)
-                .ToListAsync();
+        if (currentUser != null)
+        {
+            currentLessonOrder = currentUser.UserProgress;
+        }
 
-            // Initialize the dictionary for user answers
-            foreach (var question in questions)
+        // Fetch the lesson based on user's progress
+        var lesson = await context.Lesson.FirstOrDefaultAsync(l => l.LanguageId == 2 && l.LessonOrder == currentLessonOrder);
+
+        if (lesson != null)
+        {
+            var quiz = await context.Quiz.FirstOrDefaultAsync(q => q.LessonId == lesson.LessonId);
+
+            if (quiz != null)
             {
-                userAnswers[question.QuestionId] = null;
+                QuizTitle = quiz.QuizTitle;
+                quizId = quiz.QuizId; // Store QuizId
+
+                questions = await context.Question.Where(q => q.QuizId == quiz.QuizId).ToListAsync();
+
+                foreach (var question in questions)
+                {
+                    userAnswers[question.QuestionId] = null;
+                }
+            }
+            else
+            {
+                QuizTitle = "Quiz not found for the selected lesson.";
             }
         }
         else
-        {   
-            QuizTitle = "Quiz not found";
+        {
+            QuizTitle = "Lesson not found for the selected language.";
         }
     }
 
-    private void CheckAnswers()
+    private async Task SubmitAnswers()
     {
-        showResults = true; // Display results after checking answers
-        StateHasChanged(); // Trigger UI refresh
+        foreach (var question in questions)
+        {
+            question.UserAnswer = userAnswers[question.QuestionId];
+            context.Question.Update(question);
+        }
 
+        await context.SaveChangesAsync();
+        NavigationManager.NavigateTo($"/quizresults/chinese/review/{quizId}");
     }
 
     public async ValueTask DisposeAsync() => await context.DisposeAsync();

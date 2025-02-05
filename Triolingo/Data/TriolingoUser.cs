@@ -7,5 +7,7 @@ namespace Triolingo.Data
     {
         public string? FirstName { get; set; }
         public string? LastName { get; set; }
+        public int UserProgress { get; set; }
+        public int UserScore { get; set; }
     }
 }

@@ -1,6 +1,8 @@
 ﻿@page "/communities/create"
 @using Microsoft.EntityFrameworkCore
 @using Triolingo.Domain
+@using Triolingo.Data
+@inject AuthenticationStateProvider AuthenticationStateProvider
 @inject IDbContextFactory<Triolingo.Data.TriolingoContext> DbFactory
 @inject NavigationManager NavigationManager
 
@@ -36,19 +38,20 @@
                 </InputSelect>
                 <ValidationMessage For="() => Community.LanguageId" class="text-danger" />
             </div>
-            
-            <div class="mb-3">
-                <label for="postedon" class="form-label">PostedOn:</label>
-                <InputDate id="datecreated" @bind-Value="Community.PostedOn" class="form-control" />
-                <ValidationMessage For="() => Community.PostedOn" class="text-danger" />
-            </div>
 
+            <!-- CreatedBy field is read-only and populated automatically -->
             <div class="mb-3">
                 <label for="createdby" class="form-label">CreatedBy:</label>
-                <InputText id="createdby" @bind-Value="Community.CreatedBy" class="form-control" />
+                <InputText id="createdby" @bind-Value="Community.CreatedBy" class="form-control" readonly />
                 <ValidationMessage For="() => Community.CreatedBy" class="text-danger" />
             </div>
-            
+
+            <!-- Hidden DateCreated field -->
+            <div class="mb-3" hidden>
+                <label for="datecreated" class="form-label">DateCreated:</label>
+                <InputDate id="datecreated" @bind-Value="Community.DateCreated" class="form-control" />
+                <ValidationMessage For="() => Community.DateCreated" class="text-danger" />
+            </div>
             <button type="submit" class="btn btn-primary">Post</button>
         </EditForm>
     </div>
@@ -59,6 +62,9 @@
 </div>
 
 @code {
+    private string userId = string.Empty;
+    private IList<TriolingoUser> LangUser;
+
     [SupplyParameterFromForm]
     private Community Community { get; set; } = new();
 
@@ -76,10 +82,27 @@
         public string Name { get; set; }
     }
 
+    protected override async Task OnInitializedAsync()
+    {
+        // Fetch the authenticated user's email and set it to CreatedBy
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var userEmail = authState.User.Identity?.Name;
+
+        if (!string.IsNullOrEmpty(userEmail))
+        {
+            Community.CreatedBy = userEmail;
+        }
+
+        // Optionally, fetch the list of users if needed for other purposes
+        using var context = DbFactory.CreateDbContext();
+        LangUser = await context.Users.ToListAsync();
+    }
+
     // To protect from overposting attacks, see https://learn.microsoft.com/aspnet/core/blazor/forms/#mitigate-overposting-attacks.
     private async Task AddCommunity()
     {
         using var context = DbFactory.CreateDbContext();
+        Community.DateCreated = DateTime.Now;
         context.Community.Add(Community);
         await context.SaveChangesAsync();
         NavigationManager.NavigateTo("/communities");

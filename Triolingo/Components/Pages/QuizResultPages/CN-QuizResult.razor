@@ -1,8 +1,9 @@
-﻿@page "/quizresults/japanese/review/{quizId:int}"
+﻿@page "/quizresults/chinese/review/{quizId:int}"
 @using Microsoft.EntityFrameworkCore
 @using Triolingo.Domain
 @using Triolingo.Data
 @rendermode InteractiveServer
+@inject AuthenticationStateProvider AuthenticationStateProvider
 @inject IDbContextFactory<TriolingoContext> DbFactory
 @inject NavigationManager Navigation
 
@@ -40,30 +41,43 @@ else
 }
 
 @code {
-    /*private string GetUser()
+    private string userId = string.Empty;
+    private string userprogress = string.Empty;
+
+    private IList<TriolingoUser> LangUser;
+    private string GetUserEmail()
     {
-        var Users = User.FirstOrDefault(u => u.id == userId);
-        return Users == null ? string.Empty : $"{Users.Email}";
+        var LangUsers = LangUser.FirstOrDefault(lu => lu.Id == userId);
+        return LangUsers == null ? string.Empty :
+        $"{LangUsers.Email}";
+    }
+    /*
+    private string GetUserProgress()
+    {
+        var LangProgress = LangUser.FirstOrDefault(lu => lu.Id);
     }*/
     [Parameter]
     public int QuizId { get; set; }
 
     private TriolingoContext context = default!;
     private List<Question> questions = new();
-
     protected override async Task OnInitializedAsync()
     {
-        context = DbFactory.CreateDbContext();
+        using var context = DbFactory.CreateDbContext();
+        LangUser = context.Users.ToList();
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+        userId = user.FindFirst("userId")?.Value ?? string.Empty;
         questions = await context.Question.Where(q => q.QuizId == QuizId).ToListAsync();
     }
-
+    
     private void TryQuizAgain()
     {
-        Navigation.NavigateTo($"/quizzes/japanese");
+        Navigation.NavigateTo($"/quizzes/chinese");
     }
 
     private void GoToNextLesson()
     {
-        Navigation.NavigateTo("/lessons/japanese/next"); // Change URL based on actual routing
+        Navigation.NavigateTo("/lessons/chinese/next"); // Change URL based on actual routing
     }
 }
