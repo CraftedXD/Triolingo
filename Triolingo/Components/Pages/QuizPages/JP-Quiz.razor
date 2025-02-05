@@ -1,11 +1,14 @@
 ﻿@page "/quizzes/japanese"
 @using Microsoft.EntityFrameworkCore
 @using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.VisualBasic
 @using Triolingo.Domain
 @using Triolingo.Data
+@rendermode InteractiveServer
 @implements IAsyncDisposable
 @inject IDbContextFactory<TriolingoContext> DbFactory
 @inject AuthenticationStateProvider AuthenticationStateProvider
+@inject NavigationManager NavigationManager
 
 <PageTitle>Japanese Quiz</PageTitle>
 
@@ -22,30 +25,7 @@
         <br />
     }
 
-    <button class="btn btn-primary" @onclick=CheckAnswers>Submit Answers</button>
-
-    @if (showResults)
-    {
-        <h2>Results:</h2>
-        <ul>
-            @foreach (var question in questions)
-            {
-                var userAnswer = userAnswers[question.QuestionId];
-                var isCorrect = userAnswer?.Equals(question.CorrectAnswer, StringComparison.OrdinalIgnoreCase) ?? false;
-                <li>@(isCorrect ? $"✔ {question.QuestionText}: Correct!" : $"✘ {question.QuestionText}: Incorrect (Your Answer: {userAnswer ?? "None"}, Correct: {question.CorrectAnswer})")</li>
-            }
-        </ul>
-        <p><strong>Score: @score / @totalQuestions</strong></p>
-
-        @if (score >= 3)
-        {
-            <p>Congratulations! You have progressed to the next lesson.</p>
-        }
-        else
-        {
-            <p>Try again to improve your score.</p>
-        }
-    }
+    <button @onclick="SubmitAnswers" class="btn btn-primary">Submit Answers</button>
 }
 else
 {
@@ -57,9 +37,6 @@ else
     private string QuizTitle { get; set; } = "Loading...";
     private List<Question> questions = new();
     private Dictionary<int, string?> userAnswers = new();
-    private bool showResults = false;
-    private int score = 0;
-    private int totalQuestions = 0;
     private User? currentUser;
     private int currentLessonOrder = 1;
     private int quizId = 0; // Store QuizId for saving results
@@ -95,7 +72,6 @@ else
                 quizId = quiz.QuizId; // Store QuizId
 
                 questions = await context.Question.Where(q => q.QuizId == quiz.QuizId).ToListAsync();
-                totalQuestions = questions.Count;
 
                 foreach (var question in questions)
                 {
@@ -113,36 +89,16 @@ else
         }
     }
 
-    private async Task CheckAnswers()
+    private async Task SubmitAnswers()
     {
-        if (questions.Count == 0) return;
-
-        score = questions.Count(q => userAnswers[q.QuestionId]?.Equals(q.CorrectAnswer, StringComparison.OrdinalIgnoreCase) ?? false);
-        showResults = true;
-
-        if (currentUser != null && quizId > 0)
+        foreach (var question in questions)
         {
-            // Save quiz result
-            var quizResult = new QuizResult
-                {
-                    UserId = currentUser.UserId,
-                    QuizId = quizId,
-                    Score = score
-                };
-
-            context.QuizResult.Add(quizResult);
-
-            // Update user progress if they pass (3/5 correct)
-            if (score >= 3)
-            {
-                currentUser.UserProgress++;
-                context.User.Update(currentUser);
-            }
-
-            await context.SaveChangesAsync();
+            question.UserAnswer = userAnswers[question.QuestionId];
+            context.Question.Update(question);
         }
 
-        StateHasChanged();
+        await context.SaveChangesAsync();
+        NavigationManager.NavigateTo($"/quizresults/japanese/review/{quizId}");
     }
 
     public async ValueTask DisposeAsync() => await context.DisposeAsync();

@@ -6,28 +6,24 @@
 @implements IAsyncDisposable
 @inject IDbContextFactory<Triolingo.Data.TriolingoContext> DbFactory
 
-<PageTitle>Index</PageTitle>
+<PageTitle>Scoreboard</PageTitle>
 
-<h1>Index</h1>
+<h1>Scoreboard</h1>
 
-<p>
-    <a href="scoreboards/create">Create New</a>
-</p>
 
 <QuickGrid Class="table" Items="context.Scoreboard">
     <PropertyColumn Property="scoreboard => scoreboard.TotalScore" />
     <PropertyColumn Property="scoreboard => scoreboard.UserId" />
     <PropertyColumn Property="scoreboard => scoreboard.LanguageId" />
-    <PropertyColumn Property="scoreboard => scoreboard.DateCreated" />
-    <PropertyColumn Property="scoreboard => scoreboard.DateUpdated" />
-    <PropertyColumn Property="scoreboard => scoreboard.CreatedBy" />
-    <PropertyColumn Property="scoreboard => scoreboard.UpdatedBy" />
+    
 
+    <AuthorizeView Roles="Administrator">
     <TemplateColumn Context="scoreboard">
         <a href="@($"scoreboards/edit?scoreboardid={scoreboard.ScoreboardId}")">Edit</a> |
         <a href="@($"scoreboards/details?scoreboardid={scoreboard.ScoreboardId}")">Details</a> |
         <a href="@($"scoreboards/delete?scoreboardid={scoreboard.ScoreboardId}")">Delete</a>
     </TemplateColumn>
+    </AuthorizeView>
 </QuickGrid>
 
 @code {

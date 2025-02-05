@@ -23,6 +23,9 @@
     <Content Update="Components\Pages\LessonPages\JP-Lesson.razor">
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
     </Content>
+    <Content Update="Components\Pages\QuizResultPages\JP-QuizResult.razor">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+    </Content>
   </ItemGroup>
 
 </Project>

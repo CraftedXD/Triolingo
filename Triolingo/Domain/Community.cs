@@ -1,4 +1,6 @@
-﻿namespace Triolingo.Domain
+﻿using Azure.Core;
+
+namespace Triolingo.Domain
 {
     public class Community : BaseDomainModel
     {

@@ -1,0 +1,68 @@
+﻿@page "/quizresults/japanese/review/{quizId:int}"
+@using Microsoft.EntityFrameworkCore
+@using Triolingo.Domain
+@using Triolingo.Data
+@rendermode InteractiveServer
+@inject IDbContextFactory<TriolingoContext> DbFactory
+@inject NavigationManager Navigation
+
+<PageTitle>Quiz Review</PageTitle>
+
+<h1>Review Your Answers</h1>
+
+@if (questions != null && questions.Any())
+{
+    int correctAnswers = questions.Count(q => q.UserAnswer == q.CorrectAnswer);
+
+    @foreach (var question in questions)
+    {
+        <div class="question-container">
+            <p><b>@question.QuestionText</b></p>
+            <p>Your Answer: @question.UserAnswer</p>
+            <p>Correct Answer: @question.CorrectAnswer</p>
+            <p>@(question.UserAnswer == question.CorrectAnswer ? "✔️" : "❌")</p>
+        </div>
+        <br />
+    }
+
+    <p><b>Score: @correctAnswers / @questions.Count</b></p>
+
+    <button class="btn btn-primary" @onclick="TryQuizAgain">Try Again</button>
+
+    @if (correctAnswers >= 3 && questions.Count == 5)
+    {
+        <button class="btn btn-success" @onclick="GoToNextLesson">Next Lesson</button>
+    }
+}
+else
+{
+    <p>No questions available for review.</p>
+}
+
+@code {
+    private string GetUser()
+    {
+        var 
+    }
+    [Parameter]
+    public int QuizId { get; set; }
+
+    private TriolingoContext context = default!;
+    private List<Question> questions = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        context = DbFactory.CreateDbContext();
+        questions = await context.Question.Where(q => q.QuizId == QuizId).ToListAsync();
+    }
+
+    private void TryQuizAgain()
+    {
+        Navigation.NavigateTo($"/quizzes/japanese");
+    }
+
+    private void GoToNextLesson()
+    {
+        Navigation.NavigateTo("/lessons/japanese/next"); // Change URL based on actual routing
+    }
+}
