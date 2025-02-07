@@ -54,57 +54,74 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        using var context = DbFactory.CreateDbContext();
+        context = DbFactory.CreateDbContext(); // ✅ Assign context instance
 
         LangUser = context.Users.ToList();
 
         var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
         var user = authState.User;
         userId = user.FindFirst("userId")?.Value ?? string.Empty;
+        string userEmail = user.FindFirst("userId")?.Value ?? string.Empty;
 
-        // Convert userId to int
         int.TryParse(userId, out int userIdInt);
 
-        // Load questions for this quiz
+        // ✅ Load questions
         questions = await context.Question.Where(q => q.QuizId == QuizId).ToListAsync();
-
-        // Load quiz results for this user
-        QuizResults = context.QuizResult.Where(qr => qr.UserId == userIdInt).ToList();
 
         if (questions != null && questions.Any())
         {
-            correctAnswers = questions.Count(q => q.UserAnswer == q.CorrectAnswer);
-            SaveQuizScore(userIdInt);
+            correctAnswers = questions.Count(q => q.UserAnswer == q.CorrectAnswer); // ✅ Ensure correctAnswers is set
+            SaveQuizScore(userIdInt, userEmail);
         }
     }
 
-    private void SaveQuizScore(int userIdInt)
+    private void SaveQuizScore(int userIdInt, string userEmail)
     {
-        using var context = DbFactory.CreateDbContext();
-
         var existingResult = context.QuizResult
             .FirstOrDefault(qr => qr.UserId == userIdInt && qr.QuizId == QuizId);
 
         if (existingResult != null)
         {
-            // ✅ If user has taken this quiz before, update their score
-            existingResult.Score = correctAnswers;
+            // ✅ Only update score if the new score is higher
+            if (correctAnswers > existingResult.Score)
+            {
+                existingResult.Score = correctAnswers;
+                existingResult.Email = userEmail;
+            }
         }
         else
         {
-            // ✅ If it's the first attempt, create a new entry
             var newQuizResult = new QuizResult
                 {
                     UserId = userIdInt,
                     QuizId = QuizId,
-                    Score = correctAnswers
+                    Score = correctAnswers,
+                    Email = userEmail,
+                    DateCreated = DateTime.Now
                 };
 
             context.QuizResult.Add(newQuizResult);
         }
 
-        context.SaveChanges(); // ✅ Ensure the changes are saved
+        // ✅ Load and update the existing user
+        var existingUser = context.Users.FirstOrDefault(u => u.Id == userEmail);
+        if (existingUser != null)
+        {
+            // ✅ Only update progress if the new score is higher
+            var highestScoreForQuiz = context.QuizResult
+                .Where(qr => qr.UserId == userIdInt)
+                .Max(qr => (int?)qr.Score) ?? 0;
+
+            if (correctAnswers > highestScoreForQuiz)
+            {
+                existingUser.UserProgress += 1;
+                existingUser.UserScore += (correctAnswers - highestScoreForQuiz); // Increment only new points
+            }
+        }
+
+        context.SaveChanges(); // ✅ Save only if new score is higher
     }
+
 
 
     private void TryQuizAgain()

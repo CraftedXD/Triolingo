@@ -6,5 +6,6 @@
         public int Score { get; set; }
         public int QuizId { get; set; }//FK from Quiz entity
         public int UserId { get; set; }//FK from User entity
+        public string? Email { get; set; }
     }
 }

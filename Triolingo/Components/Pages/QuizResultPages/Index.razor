@@ -17,11 +17,8 @@
 <QuickGrid Class="table" Items="context.QuizResult">
     <PropertyColumn Property="quizresult => quizresult.Score" />
     <PropertyColumn Property="quizresult => quizresult.QuizId" />
-    <PropertyColumn Property="quizresult => quizresult.UserId" />
     <PropertyColumn Property="quizresult => quizresult.DateCreated" />
-    <PropertyColumn Property="quizresult => quizresult.DateUpdated" />
-    <PropertyColumn Property="quizresult => quizresult.CreatedBy" />
-    <PropertyColumn Property="quizresult => quizresult.UpdatedBy" />
+
 
     <TemplateColumn Context="quizresult">
         <a href="@($"quizresults/edit?quizresultid={quizresult.QuizResultId}")">Edit</a> |
