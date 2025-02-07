@@ -3,6 +3,7 @@
 @using Triolingo.Domain
 @using Triolingo.Data
 @rendermode InteractiveServer
+@inject AuthenticationStateProvider AuthenticationStateProvider
 @inject IDbContextFactory<TriolingoContext> DbFactory
 @inject NavigationManager Navigation
 
@@ -40,11 +41,11 @@ else
 }
 
 @code {
-    /*private string GetUser()
-    {
-        var Users = User.FirstOrDefault(u => u.id == userId);
-        return Users == null ? string.Empty : $"{Users.Email}";
-    }*/
+    private string userId = string.Empty;
+    private IList<QuizResult> QuizResults;
+    private IList<TriolingoUser> LangUser;
+    private int correctAnswers = 0;
+
     [Parameter]
     public int QuizId { get; set; }
 
@@ -53,9 +54,58 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        context = DbFactory.CreateDbContext();
+        using var context = DbFactory.CreateDbContext();
+
+        LangUser = context.Users.ToList();
+
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+        userId = user.FindFirst("userId")?.Value ?? string.Empty;
+
+        // Convert userId to int
+        int.TryParse(userId, out int userIdInt);
+
+        // Load questions for this quiz
         questions = await context.Question.Where(q => q.QuizId == QuizId).ToListAsync();
+
+        // Load quiz results for this user
+        QuizResults = context.QuizResult.Where(qr => qr.UserId == userIdInt).ToList();
+
+        if (questions != null && questions.Any())
+        {
+            correctAnswers = questions.Count(q => q.UserAnswer == q.CorrectAnswer);
+            SaveQuizScore(userIdInt);
+        }
     }
+
+    private void SaveQuizScore(int userIdInt)
+    {
+        using var context = DbFactory.CreateDbContext();
+
+        var existingResult = context.QuizResult
+            .FirstOrDefault(qr => qr.UserId == userIdInt && qr.QuizId == QuizId);
+
+        if (existingResult != null)
+        {
+            // ✅ If user has taken this quiz before, update their score
+            existingResult.Score = correctAnswers;
+        }
+        else
+        {
+            // ✅ If it's the first attempt, create a new entry
+            var newQuizResult = new QuizResult
+                {
+                    UserId = userIdInt,
+                    QuizId = QuizId,
+                    Score = correctAnswers
+                };
+
+            context.QuizResult.Add(newQuizResult);
+        }
+
+        context.SaveChanges(); // ✅ Ensure the changes are saved
+    }
+
 
     private void TryQuizAgain()
     {
@@ -64,6 +114,6 @@ else
 
     private void GoToNextLesson()
     {
-        Navigation.NavigateTo("/lessons/japanese/next"); // Change URL based on actual routing
+        Navigation.NavigateTo("/lessons/japanese/next");
     }
 }

@@ -43,34 +43,71 @@ else
 @code {
     private string userId = string.Empty;
     private string userprogress = string.Empty;
-
+    private IList<QuizResult> QuizResults;
     private IList<TriolingoUser> LangUser;
-    private string GetUserEmail()
-    {
-        var LangUsers = LangUser.FirstOrDefault(lu => lu.Id == userId);
-        return LangUsers == null ? string.Empty :
-        $"{LangUsers.Email}";
-    }
-    /*
-    private string GetUserProgress()
-    {
-        var LangProgress = LangUser.FirstOrDefault(lu => lu.Id);
-    }*/
+    private int correctAnswers = 0; // ✅ Declare correctAnswers here!
+
     [Parameter]
     public int QuizId { get; set; }
 
     private TriolingoContext context = default!;
     private List<Question> questions = new();
+
     protected override async Task OnInitializedAsync()
     {
         using var context = DbFactory.CreateDbContext();
+
         LangUser = context.Users.ToList();
+
         var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
         var user = authState.User;
         userId = user.FindFirst("userId")?.Value ?? string.Empty;
+
+        // Convert userId to int
+        int.TryParse(userId, out int userIdInt);
+
+        // Load questions for this quiz
         questions = await context.Question.Where(q => q.QuizId == QuizId).ToListAsync();
+
+        // Load quiz results for this user
+        QuizResults = context.QuizResult.Where(qr => qr.UserId == userIdInt).ToList();
+
+        if (questions != null && questions.Any())
+        {
+            correctAnswers = questions.Count(q => q.UserAnswer == q.CorrectAnswer); // ✅ Now this works
+            SaveQuizScore(userIdInt); // Pass userIdInt
+        }
     }
-    
+
+    private void SaveQuizScore(int userIdInt)
+    {
+        using var context = DbFactory.CreateDbContext();
+
+        var existingResult = context.QuizResult
+            .FirstOrDefault(qr => qr.UserId == userIdInt && qr.QuizId == QuizId);
+
+        if (existingResult != null)
+        {
+            // ✅ If user has taken this quiz before, update their score
+            existingResult.Score = correctAnswers;
+        }
+        else
+        {
+            // ✅ If it's the first attempt, create a new entry
+            var newQuizResult = new QuizResult
+                {
+                    UserId = userIdInt,
+                    QuizId = QuizId,
+                    Score = correctAnswers
+                };
+
+            context.QuizResult.Add(newQuizResult);
+        }
+
+        context.SaveChanges(); // ✅ Ensure the changes are saved
+    }
+
+
     private void TryQuizAgain()
     {
         Navigation.NavigateTo($"/quizzes/chinese");
@@ -78,6 +115,6 @@ else
 
     private void GoToNextLesson()
     {
-        Navigation.NavigateTo("/lessons/chinese/next"); // Change URL based on actual routing
+        Navigation.NavigateTo("/lessons/chinese/next");
     }
 }
