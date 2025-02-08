@@ -4,30 +4,67 @@
 @using Triolingo.Domain
 @using Triolingo.Data
 @implements IAsyncDisposable
-@inject IDbContextFactory<Triolingo.Data.TriolingoContext> DbFactory
+@inject IDbContextFactory<TriolingoContext> DbFactory
 
 <PageTitle>Scoreboard</PageTitle>
 
 <h1>Scoreboard</h1>
 
+@if (rankedUsers != null && rankedUsers.Any())
+{
+    <QuickGrid Class="table" Items="rankedUsers.AsQueryable()" TGridItem="UserWithRank">
+        <PropertyColumn title="Rank" Property="user => user.Rank" />
+        <PropertyColumn title="User Name" Property="user => user.Email" />
+        <PropertyColumn title="Total Score" Property="user => user.UserScore" />
+        <PropertyColumn title="Chinese Progress" Property="user => user.ChineseProgress" />
+        <PropertyColumn title="Japanese Progress" Property="user => user.UserProgress" />
+    </QuickGrid>
+}
+else
+{
+    <p>No users with a score greater than 1.</p>
+}
 
-<QuickGrid Class="table" Items="context.Users">
-    <PropertyColumn title="Score" Property="Users => Users.UserScore" />
-    <PropertyColumn title="UserName" Property="Users => Users.Email" />
-    <PropertyColumn title="Chinese Language Progress" Property="Users => Users.ChineseProgress" />
-    <PropertyColumn title="Japanese Language Progress" Property="Users => Users.UserProgress" />
-    
-
-   
-</QuickGrid>
 
 @code {
     private TriolingoContext context = default!;
+    private List<UserWithRank> rankedUsers = new();
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
         context = DbFactory.CreateDbContext();
+
+        // Fetch users with scores greater than 1, ordered by their scores in descending order
+        var usersList = await context.Users
+            .Where(user => user.UserScore > 1)
+            .OrderByDescending(user => user.UserScore)
+            .ToListAsync();
+
+        // Add rank dynamically
+        rankedUsers = usersList
+            .Select((user, index) => new UserWithRank
+                {
+                    Rank = index + 1, // Rank is assigned based on the order in the sorted list
+                    Email = user.Email,
+                    UserScore = user.UserScore,
+                    ChineseProgress = user.ChineseProgress,
+                    UserProgress = user.UserProgress
+                })
+            .ToList();
     }
 
-    public async ValueTask DisposeAsync() => await context.DisposeAsync();
+    public async ValueTask DisposeAsync()
+    {
+        await context.DisposeAsync();
+    }
+
+    // Helper class for adding Rank to the user data
+    private class UserWithRank
+    {
+        public int Rank { get; set; }
+        public string Email { get; set; } = string.Empty;
+        public int UserScore { get; set; }
+        public int ChineseProgress { get; set; }
+        public int UserProgress { get; set; }
+    }
 }

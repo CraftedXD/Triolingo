@@ -3,36 +3,61 @@
 @using Microsoft.AspNetCore.Components.QuickGrid
 @using Triolingo.Domain
 @using Triolingo.Data
+@using Microsoft.AspNetCore.Components.Authorization
 @implements IAsyncDisposable
 @inject IDbContextFactory<Triolingo.Data.TriolingoContext> DbFactory
+@inject AuthenticationStateProvider AuthenticationStateProvider
 
-<PageTitle>Index</PageTitle>
+<PageTitle>Quiz Results</PageTitle>
 
-<h1>Index</h1>
-
-<p>
-    <a href="quizresults/create">Create New</a>
-</p>
-
-<QuickGrid Class="table" Items="context.QuizResult">
-    <PropertyColumn Property="quizresult => quizresult.Score" />
-    <PropertyColumn Property="quizresult => quizresult.QuizId" />
-    <PropertyColumn Property="quizresult => quizresult.DateCreated" />
+<h1>Your Quiz Results</h1>
 
 
-    <TemplateColumn Context="quizresult">
-        <a href="@($"quizresults/edit?quizresultid={quizresult.QuizResultId}")">Edit</a> |
-        <a href="@($"quizresults/details?quizresultid={quizresult.QuizResultId}")">Details</a> |
-        <a href="@($"quizresults/delete?quizresultid={quizresult.QuizResultId}")">Delete</a>
-    </TemplateColumn>
-</QuickGrid>
+
+@if (quizResults != null && quizResults.Any())
+{
+    <QuickGrid Class="table" Items="context.QuizResult">
+        <!-- Bind the filtered results -->
+        <PropertyColumn title="Score" Property="quizresult => quizresult.Score" />
+        <PropertyColumn title="Quiz ID" Property="quizresult => quizresult.QuizId" />
+        <PropertyColumn title="Date Created" Property="quizresult => quizresult.DateCreated" />
+
+        <AuthorizeView Roles="Administrator">
+        <TemplateColumn Context="quizresult">
+            <a href="@($"quizresults/edit?quizresultid={quizresult.QuizResultId}")">Edit</a> |
+            <a href="@($"quizresults/details?quizresultid={quizresult.QuizResultId}")">Details</a> |
+            <a href="@($"quizresults/delete?quizresultid={quizresult.QuizResultId}")">Delete</a>
+        </TemplateColumn>
+        </AuthorizeView>
+    </QuickGrid>
+}
+else
+{
+    <p>No quiz results found for your account.</p>
+}
 
 @code {
+    private string userId = string.Empty;
     private TriolingoContext context = default!;
+    private List<QuizResult> quizResults = new();
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
         context = DbFactory.CreateDbContext();
+
+        // Get the current user's ID
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+
+        // Extract the user ID from the authentication state
+        userId = user.FindFirst("userId")?.Value ?? string.Empty; // Adjust claim type if necessary
+
+        
+            // Fetch only quiz results for the current user
+            quizResults = await context.QuizResult
+                .Where(qr => qr.Email == userId) // Only include results where the Email matches the userId
+                .ToListAsync();
+
     }
 
     public async ValueTask DisposeAsync() => await context.DisposeAsync();
