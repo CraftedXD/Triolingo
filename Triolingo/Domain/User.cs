@@ -8,5 +8,7 @@
         public string? Password { get; set; }
 
         public int UserProgress { get; set; }
+
+
     }
 }

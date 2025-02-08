@@ -1,35 +1,67 @@
 ﻿@page "/lessons/japanese"
 @using Microsoft.EntityFrameworkCore
 @using Microsoft.AspNetCore.Components.QuickGrid
+@using Microsoft.AspNetCore.Components.Authorization;
 @using Triolingo.Domain
 @using Triolingo.Data
 @implements IAsyncDisposable
+@rendermode InteractiveServer
 @inject IDbContextFactory<Triolingo.Data.TriolingoContext> DbFactory
+@inject AuthenticationStateProvider AuthenticationStateProvider
 
-<PageTitle>Japanese Lesson</PageTitle>
+<PageTitle>Japanese Lessons</PageTitle>
 
 <h1>@LessonName</h1>
 
 <p>@LessonContent</p>
 
+<div class="lesson-navigation">
+    <button class="btn btn-secondary" @onclick="PreviousLesson" disabled="@IsPreviousDisabled">Previous Lesson</button>
+    <button class="btn btn-secondary" @onclick="NextLesson" disabled="@IsNextDisabled">Next Lesson</button>
+</div>
+
 <p>
-    <a class="btn btn-primary" href="/quizzes/japanese">Quiz</a>
+    <a class="btn btn-primary" href="/quizzes/japanese?lessonOrder=@CurrentLessonOrder">Quiz</a>
 </p>
+
 
 @code {
     private TriolingoContext context = default!;
-    private string LessonName { get; set; } = "Loading...";
-    private string LessonContent { get; set; } = "Loading content...";
+    private string userId = string.Empty; // Stores the authenticated user's ID
+    private string LessonName { get; set; } = "Loading..."; // Holds the lesson title
+    private string LessonContent { get; set; } = "Loading content..."; // Holds the lesson content
     private int CurrentLessonOrder { get; set; } = 1; // Default to Lesson 1
+    private int MaxLessonOrder { get; set; } = 1; // Highest lesson order accessible by the user
+    private bool IsPreviousDisabled => CurrentLessonOrder <= 1;
+    private bool IsNextDisabled => CurrentLessonOrder >= MaxLessonOrder;
 
     protected override async Task OnInitializedAsync()
     {
-        context = DbFactory.CreateDbContext();
+        context = DbFactory.CreateDbContext(); // Assign context instance
 
-        // Fetch the lesson for the current LanguageId and LessonOrder
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+        userId = user.FindFirst("userId")?.Value ?? string.Empty;
+        int.TryParse(userId, out int userIdInt);
+
+        if (user.Identity?.IsAuthenticated == true)
+        {
+            var userEmail = user.Identity.Name;
+
+            var existingUser = await context.Users.FirstOrDefaultAsync(u => u.Email == userEmail);
+            if (existingUser != null)
+            {
+                MaxLessonOrder = existingUser.UserProgress; // Set the max lesson order
+            }
+        }
+
+        await LoadLesson();
+    }
+
+    private async Task LoadLesson()
+    {
         var currentLesson = await context.Lesson
             .FirstOrDefaultAsync(lesson => lesson.LanguageId == 1 && lesson.LessonOrder == CurrentLessonOrder);
-
 
         if (currentLesson != null)
         {
@@ -38,10 +70,30 @@
         }
         else
         {
-            LessonName = "No more lessons available";
-            LessonContent = "You have completed all the lessons for this language.";
+            LessonName = "Lesson not found";
+            LessonContent = "Unable to load the lesson content.";
+        }
+
+        StateHasChanged();
+    }
+
+    private async Task PreviousLesson()
+    {
+        if (CurrentLessonOrder > 1)
+        {
+            CurrentLessonOrder--;
+            await LoadLesson();
         }
     }
 
-    public async ValueTask DisposeAsync() => await context.DisposeAsync();
+    private async Task NextLesson()
+    {
+        if (CurrentLessonOrder < MaxLessonOrder)
+        {
+            CurrentLessonOrder++;
+            await LoadLesson();
+        }
+    }
+
+    public async ValueTask DisposeAsync() => await context.DisposeAsync(); // Dispose of database context
 }

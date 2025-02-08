@@ -1,11 +1,11 @@
 ﻿@page "/quizzes/japanese"
 @using Microsoft.EntityFrameworkCore
 @using Microsoft.AspNetCore.Components.Authorization
-@using Microsoft.VisualBasic
+@using Microsoft.AspNetCore.Components.Routing
 @using Triolingo.Domain
 @using Triolingo.Data
-@rendermode InteractiveServer
 @implements IAsyncDisposable
+@rendermode InteractiveServer
 @inject IDbContextFactory<TriolingoContext> DbFactory
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject NavigationManager NavigationManager
@@ -33,48 +33,49 @@ else
 }
 
 @code {
-
     private TriolingoContext context = default!;
     private string QuizTitle { get; set; } = "Loading...";
     private List<Question> questions = new();
     private Dictionary<int, string?> userAnswers = new();
-    private string? currentUserEmail;
-    private int currentLessonOrder = 1; // Default to 1 if no progress is found
-    private int quizId = 0; // Store QuizId for saving results
+    private string userId = string.Empty;
+    private int CurrentLessonOrder { get; set; } = 1; // Default lesson order
+    private int quizId = 0; // Store QuizId for navigation
 
     protected override async Task OnInitializedAsync()
     {
         context = DbFactory.CreateDbContext();
 
-        // Get authenticated user
-        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
-        currentUserEmail = authState.User.Identity?.Name;
-
-        if (!string.IsNullOrEmpty(currentUserEmail))
+        // Get lessonOrder query parameter
+        var uri = NavigationManager.ToAbsoluteUri(NavigationManager.Uri);
+        if (Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(uri.Query).TryGetValue("lessonOrder", out var lessonOrderParam))
         {
-            currentLessonOrder = await context.User
-                .Where(u => u.Email == currentUserEmail)
-                .Select(u => u.UserProgress) // Directly select UserProgress as an int
-                .FirstOrDefaultAsync();
+            if (int.TryParse(lessonOrderParam, out int parsedLessonOrder))
+            {
+                CurrentLessonOrder = parsedLessonOrder; // Assign the parsed value to the property
+            }
         }
 
-        // Fetch the lesson based on user's progress
-        var lesson = await context.Lesson
-            .FirstOrDefaultAsync(l => l.LanguageId == 1 && l.LessonOrder == currentLessonOrder);
 
-        if (lesson != null)
+        // Fetch the lesson corresponding to the provided lesson order
+        var currentLesson = await context.Lesson
+            .FirstOrDefaultAsync(lesson => lesson.LanguageId == 1 && lesson.LessonOrder == CurrentLessonOrder);
+
+        if (currentLesson != null)
         {
-            var quiz = await context.Quiz.FirstOrDefaultAsync(q => q.LessonId == lesson.LessonId);
+            var quiz = await context.Quiz
+                .FirstOrDefaultAsync(q => q.LessonId == currentLesson.LessonId);
 
             if (quiz != null)
             {
                 QuizTitle = quiz.QuizTitle;
-                quizId = quiz.QuizId; // Store QuizId
+                quizId = quiz.QuizId;
 
+                // Fetch quiz questions
                 questions = await context.Question
                     .Where(q => q.QuizId == quiz.QuizId)
                     .ToListAsync();
 
+                // Initialize user answers
                 foreach (var question in questions)
                 {
                     userAnswers[question.QuestionId] = null;
@@ -87,7 +88,7 @@ else
         }
         else
         {
-            QuizTitle = "Lesson not found for the selected language.";
+            QuizTitle = "Lesson not found.";
         }
     }
 
