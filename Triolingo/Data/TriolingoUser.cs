@@ -9,6 +9,6 @@ namespace Triolingo.Data
         public string? LastName { get; set; }
         public int UserProgress { get; set; }
         public int UserScore { get; set; }
-        //public int ChineseProgress { get; set; }
+        public int ChineseProgress { get; set; }
     }
 }

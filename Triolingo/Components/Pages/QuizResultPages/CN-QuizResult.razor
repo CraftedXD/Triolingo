@@ -42,10 +42,9 @@ else
 
 @code {
     private string userId = string.Empty;
-    private string userprogress = string.Empty;
     private IList<QuizResult> QuizResults;
     private IList<TriolingoUser> LangUser;
-    private int correctAnswers = 0; // ✅ Declare correctAnswers here!
+    private int correctAnswers = 0;
 
     [Parameter]
     public int QuizId { get; set; }
@@ -55,66 +54,94 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        using var context = DbFactory.CreateDbContext();
+        context = DbFactory.CreateDbContext(); // ✅ Assign context instance
 
         LangUser = context.Users.ToList();
 
         var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
         var user = authState.User;
         userId = user.FindFirst("userId")?.Value ?? string.Empty;
+        string userEmail = user.FindFirst("userId")?.Value ?? string.Empty;
 
-        // Convert userId to int
         int.TryParse(userId, out int userIdInt);
 
-        // Load questions for this quiz
+        // ✅ Load questions
         questions = await context.Question.Where(q => q.QuizId == QuizId).ToListAsync();
-
-        // Load quiz results for this user
-        QuizResults = context.QuizResult.Where(qr => qr.UserId == userIdInt).ToList();
 
         if (questions != null && questions.Any())
         {
-            correctAnswers = questions.Count(q => q.UserAnswer == q.CorrectAnswer); // ✅ Now this works
-            SaveQuizScore(userIdInt); // Pass userIdInt
+            correctAnswers = questions.Count(q => q.UserAnswer == q.CorrectAnswer); // ✅ Ensure correctAnswers is set
+            SaveQuizScore(userIdInt, userEmail);
         }
     }
 
-    private void SaveQuizScore(int userIdInt)
+    private void SaveQuizScore(int userIdInt, string userEmail)
     {
-        using var context = DbFactory.CreateDbContext();
-
         var existingResult = context.QuizResult
-            .FirstOrDefault(qr => qr.UserId == userIdInt && qr.QuizId == QuizId);
+            .FirstOrDefault(qr => qr.Email == userId && qr.QuizId == QuizId);
 
         if (existingResult != null)
         {
-            // ✅ If user has taken this quiz before, update their score
-            existingResult.Score = correctAnswers;
+            // ✅ Only update score if the new score is higher
+            if (correctAnswers > existingResult.Score)
+            {
+                existingResult.Score = correctAnswers;
+                existingResult.Email = userEmail;
+            }
         }
         else
         {
-            // ✅ If it's the first attempt, create a new entry
             var newQuizResult = new QuizResult
                 {
                     UserId = userIdInt,
                     QuizId = QuizId,
-                    Score = correctAnswers
+                    Score = correctAnswers,
+                    Email = userEmail,
+                    DateCreated = DateTime.Now
                 };
 
             context.QuizResult.Add(newQuizResult);
         }
 
-        context.SaveChanges(); // ✅ Ensure the changes are saved
+        // ✅ Load and update the existing user
+        var existingUser = context.Users.FirstOrDefault(u => u.Id == userEmail);
+        if (existingUser != null)
+        {
+            // ✅ Get highest score recorded for this quiz
+            var highestScoreForQuiz = context.QuizResult
+                .Where(qr => qr.Email == userId && qr.QuizId == QuizId)
+                .Max(qr => (int?)qr.Score) ?? 0;
+
+            // ✅ Check if the user has already completed this quiz (scored 3+ before)
+            bool hasCompletedQuiz = context.QuizResult
+                .Any(qr => qr.Email == userId && qr.QuizId == QuizId && qr.Score >= 3);
+
+            // ✅ Only increase progress if this is the first time scoring 3+ on this quiz
+            if (correctAnswers >= 3 && !hasCompletedQuiz)
+            {
+                existingUser.ChineseProgress += 1; // Increase progress only once per quiz
+            }
+
+            // ✅ Update score if the new score is higher
+            if (correctAnswers > highestScoreForQuiz)
+            {
+                existingUser.UserScore += (correctAnswers - highestScoreForQuiz); // Increment only new points
+            }
+        }
+
+
+        context.SaveChanges(); // ✅ Save only if new score is higher
     }
+
 
 
     private void TryQuizAgain()
     {
-        Navigation.NavigateTo($"/quizzes/chinese");
+        Navigation.NavigateTo($"/quizzes/japanese");
     }
 
     private void GoToNextLesson()
     {
-        Navigation.NavigateTo("/lessons/chinese/next");
+        Navigation.NavigateTo("/lessons/japanese/next");
     }
 }

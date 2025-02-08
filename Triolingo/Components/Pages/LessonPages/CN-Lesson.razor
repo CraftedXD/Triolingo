@@ -50,7 +50,8 @@
             var existingUser = await context.Users.FirstOrDefaultAsync(u => u.Email == userEmail);
             if (existingUser != null)
             {
-                MaxLessonOrder = existingUser.UserProgress; // Set the max lesson order
+                MaxLessonOrder = existingUser.ChineseProgress; // Set the max lesson order based on ChineseProgress
+                CurrentLessonOrder = MaxLessonOrder; // Start at the user's current progress
             }
         }
 
@@ -69,8 +70,8 @@
         }
         else
         {
-            LessonName = "Lesson not found";
-            LessonContent = "Unable to load the lesson content.";
+            LessonName = "You have completed all the lessons";
+            LessonContent = "Congratulations!";
         }
 
         StateHasChanged();
@@ -81,6 +82,7 @@
         if (CurrentLessonOrder > 1)
         {
             CurrentLessonOrder--;
+            await SaveProgress();
             await LoadLesson();
         }
     }
@@ -90,7 +92,18 @@
         if (CurrentLessonOrder < MaxLessonOrder)
         {
             CurrentLessonOrder++;
+            await SaveProgress();
             await LoadLesson();
+        }
+    }
+
+    private async Task SaveProgress()
+    {
+        var user = await context.Users.FirstOrDefaultAsync(u => u.Id.ToString() == userId);
+        if (user != null && CurrentLessonOrder > user.ChineseProgress)
+        {
+            user.ChineseProgress = CurrentLessonOrder; // Update ChineseProgress
+            await context.SaveChangesAsync();
         }
     }
 

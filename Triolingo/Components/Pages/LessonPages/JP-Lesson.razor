@@ -52,6 +52,7 @@
             if (existingUser != null)
             {
                 MaxLessonOrder = existingUser.UserProgress; // Set the max lesson order
+                CurrentLessonOrder = MaxLessonOrder; // Start at the user's current progress
             }
         }
 
@@ -70,8 +71,8 @@
         }
         else
         {
-            LessonName = "Lesson not found";
-            LessonContent = "Unable to load the lesson content.";
+            LessonName = "You have completed all the lessons";
+            LessonContent = "Congratulations!";
         }
 
         StateHasChanged();

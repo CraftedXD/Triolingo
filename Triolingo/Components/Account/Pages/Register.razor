@@ -89,6 +89,7 @@
         user.FirstName = Input.FirstName;
         user.LastName = Input.LastName;
         user.UserProgress = 1;
+        user.ChineseProgress = 1;
 
         var result = await UserManager.CreateAsync(user, Input.Password);
 
