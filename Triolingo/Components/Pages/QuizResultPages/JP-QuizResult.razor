@@ -78,7 +78,7 @@ else
     private void SaveQuizScore(int userIdInt, string userEmail)
     {
         var existingResult = context.QuizResult
-            .FirstOrDefault(qr => qr.UserId == userIdInt && qr.QuizId == QuizId);
+            .FirstOrDefault(qr => qr.Email == userId && qr.QuizId == QuizId);
 
         if (existingResult != null)
         {
@@ -114,7 +114,7 @@ else
 
             if (correctAnswers > highestScoreForQuiz)
             {
-                existingUser.UserProgress += 1;
+                existingUser.UserProgress = 2;
                 existingUser.UserScore += (correctAnswers - highestScoreForQuiz); // Increment only new points
             }
         }
