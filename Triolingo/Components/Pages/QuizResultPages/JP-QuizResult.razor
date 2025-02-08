@@ -107,17 +107,28 @@ else
         var existingUser = context.Users.FirstOrDefault(u => u.Id == userEmail);
         if (existingUser != null)
         {
-            // ✅ Only update progress if the new score is higher
+            // ✅ Get highest score recorded for this quiz
             var highestScoreForQuiz = context.QuizResult
-                .Where(qr => qr.UserId == userIdInt)
+                .Where(qr => qr.Email == userId && qr.QuizId == QuizId)
                 .Max(qr => (int?)qr.Score) ?? 0;
 
+            // ✅ Check if the user has already completed this quiz (scored 3+ before)
+            bool hasCompletedQuiz = context.QuizResult
+                .Any(qr => qr.Email == userId && qr.QuizId == QuizId && qr.Score >= 3);
+
+            // ✅ Only increase progress if this is the first time scoring 3+ on this quiz
+            if (correctAnswers >= 3 && !hasCompletedQuiz)
+            {
+                existingUser.UserProgress += 1; // Increase progress only once per quiz
+            }
+
+            // ✅ Update score if the new score is higher
             if (correctAnswers > highestScoreForQuiz)
             {
-                existingUser.UserProgress = 2;
                 existingUser.UserScore += (correctAnswers - highestScoreForQuiz); // Increment only new points
             }
         }
+
 
         context.SaveChanges(); // ✅ Save only if new score is higher
     }

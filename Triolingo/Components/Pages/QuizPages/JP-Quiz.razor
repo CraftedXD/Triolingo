@@ -33,12 +33,13 @@ else
 }
 
 @code {
+
     private TriolingoContext context = default!;
     private string QuizTitle { get; set; } = "Loading...";
     private List<Question> questions = new();
     private Dictionary<int, string?> userAnswers = new();
-    private User? currentUser;
-    private int currentLessonOrder = 1;
+    private string? currentUserEmail;
+    private int currentLessonOrder = 1; // Default to 1 if no progress is found
     private int quizId = 0; // Store QuizId for saving results
 
     protected override async Task OnInitializedAsync()
@@ -47,20 +48,19 @@ else
 
         // Get authenticated user
         var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
-        var userEmail = authState.User.Identity?.Name;
+        currentUserEmail = authState.User.Identity?.Name;
 
-        if (userEmail != null)
+        if (!string.IsNullOrEmpty(currentUserEmail))
         {
-            currentUser = await context.User.FirstOrDefaultAsync(u => u.Email == userEmail);
-        }
-
-        if (currentUser != null)
-        {
-            currentLessonOrder = currentUser.UserProgress;
+            currentLessonOrder = await context.User
+                .Where(u => u.Email == currentUserEmail)
+                .Select(u => u.UserProgress) // Directly select UserProgress as an int
+                .FirstOrDefaultAsync();
         }
 
         // Fetch the lesson based on user's progress
-        var lesson = await context.Lesson.FirstOrDefaultAsync(l => l.LanguageId == 1 && l.LessonOrder == currentLessonOrder);
+        var lesson = await context.Lesson
+            .FirstOrDefaultAsync(l => l.LanguageId == 1 && l.LessonOrder == currentLessonOrder);
 
         if (lesson != null)
         {
@@ -71,7 +71,9 @@ else
                 QuizTitle = quiz.QuizTitle;
                 quizId = quiz.QuizId; // Store QuizId
 
-                questions = await context.Question.Where(q => q.QuizId == quiz.QuizId).ToListAsync();
+                questions = await context.Question
+                    .Where(q => q.QuizId == quiz.QuizId)
+                    .ToListAsync();
 
                 foreach (var question in questions)
                 {

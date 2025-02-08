@@ -35,13 +35,13 @@
             </div>
             <div class="form-floating mb-3">
                 <InputText @bind-Value="Input.FirstName" class="form-control"
-                           autocomplete="firstname" aria-required="true" placeholder="Bill" />
+                autocomplete="firstname" aria-required="true" placeholder="Bill" />
                 <label for="email">First Name</label>
                 <ValidationMessage For="() => Input.FirstName" class="text-danger" />
             </div>
             <div class="form-floating mb-3">
                 <InputText @bind-Value="Input.LastName" class="form-control"
-                           autocomplete="lastname" aria-required="true" placeholder="Gates" />
+                autocomplete="lastname" aria-required="true" placeholder="Gates" />
                 <label for="email">Last Name</label>
                 <ValidationMessage For="() => Input.LastName" class="text-danger" />
             </div>
@@ -88,6 +88,7 @@
 
         user.FirstName = Input.FirstName;
         user.LastName = Input.LastName;
+        user.UserProgress = 1;
 
         var result = await UserManager.CreateAsync(user, Input.Password);
 

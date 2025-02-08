@@ -30,6 +30,7 @@
         var currentLesson = await context.Lesson
             .FirstOrDefaultAsync(lesson => lesson.LanguageId == 1 && lesson.LessonOrder == CurrentLessonOrder);
 
+
         if (currentLesson != null)
         {
             LessonName = currentLesson.LessonName;
