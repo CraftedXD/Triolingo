@@ -11,19 +11,14 @@
 <h1>Scoreboard</h1>
 
 
-<QuickGrid Class="table" Items="context.Scoreboard">
-    <PropertyColumn Property="scoreboard => scoreboard.TotalScore" />
-    <PropertyColumn Property="scoreboard => scoreboard.UserId" />
-    <PropertyColumn Property="scoreboard => scoreboard.LanguageId" />
+<QuickGrid Class="table" Items="context.Users">
+    <PropertyColumn title="Score" Property="Users => Users.UserScore" />
+    <PropertyColumn title="UserName" Property="Users => Users.Email" />
+    <PropertyColumn title="Chinese Language Progress" Property="Users => Users.ChineseProgress" />
+    <PropertyColumn title="Japanese Language Progress" Property="Users => Users.UserProgress" />
     
 
-    <AuthorizeView Roles="Administrator">
-    <TemplateColumn Context="scoreboard">
-        <a href="@($"scoreboards/edit?scoreboardid={scoreboard.ScoreboardId}")">Edit</a> |
-        <a href="@($"scoreboards/details?scoreboardid={scoreboard.ScoreboardId}")">Details</a> |
-        <a href="@($"scoreboards/delete?scoreboardid={scoreboard.ScoreboardId}")">Delete</a>
-    </TemplateColumn>
-    </AuthorizeView>
+   
 </QuickGrid>
 
 @code {
