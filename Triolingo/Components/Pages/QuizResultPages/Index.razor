@@ -18,6 +18,7 @@
         <PropertyColumn Title="Score" Property="(QuizResult quizresult) => quizresult.Score" />
         <PropertyColumn Title="Quiz ID" Property="(QuizResult quizresult) => quizresult.QuizId" />
         <PropertyColumn Title="Date Created" Property="(QuizResult quizresult) => quizresult.DateCreated" />
+        <PropertyColumn Title="User" Property="(QuizResult quizresult) => quizresult.Email" />
 
         <AuthorizeView Roles="Administrator">
             <TemplateColumn Title="Actions" Context="quizresult">
