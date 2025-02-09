@@ -3,7 +3,7 @@
 @using Triolingo.Domain
 @inject IDbContextFactory<Triolingo.Data.TriolingoContext> DbFactory
 @inject NavigationManager NavigationManager
-
+@attribute [Authorize(Roles = "Administrator")]
 <PageTitle>Details</PageTitle>
 
 <h1>Details</h1>

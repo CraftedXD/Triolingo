@@ -12,22 +12,19 @@
 
 <h1>Your Quiz Results</h1>
 
-
-
-@if (quizResults != null && quizResults.Any())
+@if (quizResults.Any())
 {
-    <QuickGrid Class="table" Items="context.QuizResult">
-        <!-- Bind the filtered results -->
-        <PropertyColumn title="Score" Property="quizresult => quizresult.Score" />
-        <PropertyColumn title="Quiz ID" Property="quizresult => quizresult.QuizId" />
-        <PropertyColumn title="Date Created" Property="quizresult => quizresult.DateCreated" />
+    <QuickGrid Items="quizResults.AsQueryable()" Class="table">
+        <PropertyColumn Title="Score" Property="(QuizResult quizresult) => quizresult.Score" />
+        <PropertyColumn Title="Quiz ID" Property="(QuizResult quizresult) => quizresult.QuizId" />
+        <PropertyColumn Title="Date Created" Property="(QuizResult quizresult) => quizresult.DateCreated" />
 
         <AuthorizeView Roles="Administrator">
-        <TemplateColumn Context="quizresult">
-            <a href="@($"quizresults/edit?quizresultid={quizresult.QuizResultId}")">Edit</a> |
-            <a href="@($"quizresults/details?quizresultid={quizresult.QuizResultId}")">Details</a> |
-            <a href="@($"quizresults/delete?quizresultid={quizresult.QuizResultId}")">Delete</a>
-        </TemplateColumn>
+            <TemplateColumn Title="Actions" Context="quizresult">
+                <a href="@($"quizresults/edit?quizresultid={quizresult.QuizResultId}")">Edit</a> |
+                <a href="@($"quizresults/details?quizresultid={quizresult.QuizResultId}")">Details</a> |
+                <a href="@($"quizresults/delete?quizresultid={quizresult.QuizResultId}")">Delete</a>
+            </TemplateColumn>
         </AuthorizeView>
     </QuickGrid>
 }
@@ -38,26 +35,35 @@ else
 
 @code {
     private string userId = string.Empty;
+    private bool isAdmin = false;
     private TriolingoContext context = default!;
-    private List<QuizResult> quizResults = new();
+    private List<QuizResult> quizResults = new(); // Now it will be converted to IQueryable
 
     protected override async Task OnInitializedAsync()
     {
-        context = DbFactory.CreateDbContext();
+        context = await DbFactory.CreateDbContextAsync();
 
-        // Get the current user's ID
+        // Get the current user's authentication state
         var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
         var user = authState.User;
 
-        // Extract the user ID from the authentication state
-        userId = user.FindFirst("userId")?.Value ?? string.Empty; // Adjust claim type if necessary
+        // Extract the user ID (adjust claim type if necessary)
+        userId = user.FindFirst("userId")?.Value ?? user.FindFirst("sub")?.Value ?? string.Empty;
 
-        
-            // Fetch only quiz results for the current user
-            quizResults = await context.QuizResult
-                .Where(qr => qr.Email == userId) // Only include results where the Email matches the userId
-                .ToListAsync();
+        // Check if the user is an Administrator
+        isAdmin = user.IsInRole("Administrator");
 
+        // Fetch quiz results based on the user's role
+        if (isAdmin)
+        {
+            quizResults = await context.QuizResult.ToListAsync();
+        }
+        else
+        {
+            quizResults = await context.QuizResult.Where(qr => qr.Email == userId).ToListAsync();
+        }
+
+        StateHasChanged(); // Ensure UI updates
     }
 
     public async ValueTask DisposeAsync() => await context.DisposeAsync();

@@ -2,14 +2,15 @@
 @using Microsoft.EntityFrameworkCore
 @using Triolingo.Domain
 @inject IDbContextFactory<Triolingo.Data.TriolingoContext> DbFactory
+@inject AuthenticationStateProvider AuthenticationStateProvider
 @inject NavigationManager NavigationManager
+@attribute [Authorize(Roles = "Administrator")]
 
-<PageTitle>Edit</PageTitle>
+<PageTitle>Edit Lesson</PageTitle>
 
-<h1>Edit</h1>
-
-<h2>Lesson</h2>
+<h1>Edit Lesson</h1>
 <hr />
+
 @if (Lesson is null)
 {
     <p><em>Loading...</em></p>
@@ -18,50 +19,43 @@ else
 {
     <div class="row">
         <div class="col-md-4">
-            <EditForm method="post" Model="Lesson" OnValidSubmit="UpdateLesson" FormName="edit" Enhance>
+            <EditForm Model="Lesson" OnValidSubmit="UpdateLesson">
                 <DataAnnotationsValidator />
-                <ValidationSummary role="alert"/>
-                <input type="hidden" name="Lesson.LessonId" value="@Lesson.LessonId" />
+                <ValidationSummary class="text-danger" role="alert" />
+
                 <div class="mb-3">
-                    <label for="lessonname" class="form-label">LessonName:</label>
-                    <InputText id="lessonname" @bind-Value="Lesson.LessonName" class="form-control" />
+                    <label for="lessonname" class="form-label">Lesson Name:</label>
+                    <InputText id="lessonname" @bind-Value="Lesson.LessonName" class="form-control" required />
                     <ValidationMessage For="() => Lesson.LessonName" class="text-danger" />
                 </div>
                 <div class="mb-3">
-                    <label for="lessoncontent" class="form-label">LessonContent:</label>
-                    <InputText id="lessoncontent" @bind-Value="Lesson.LessonContent" class="form-control" />
+                    <label for="lessoncontent" class="form-label">Lesson Content:</label>
+                    <InputText id="lessoncontent" @bind-Value="Lesson.LessonContent" class="form-control" required />
                     <ValidationMessage For="() => Lesson.LessonContent" class="text-danger" />
                 </div>
                 <div class="mb-3">
-                    <label for="lessonorder" class="form-label">LessonOrder:</label>
-                    <InputNumber id="lessonorder" @bind-Value="Lesson.LessonOrder" class="form-control" />
+                    <label for="lessonorder" class="form-label">Lesson Order:</label>
+                    <InputNumber id="lessonorder" @bind-Value="Lesson.LessonOrder" class="form-control" required />
                     <ValidationMessage For="() => Lesson.LessonOrder" class="text-danger" />
                 </div>
                 <div class="mb-3">
-                    <label for="languageid" class="form-label">LanguageId:</label>
-                    <InputNumber id="languageid" @bind-Value="Lesson.LanguageId" class="form-control" />
+                    <label for="languageid" class="form-label">Language:</label>
+                    <InputNumber id="languageid" @bind-Value="Lesson.LanguageId" class="form-control" required />
                     <ValidationMessage For="() => Lesson.LanguageId" class="text-danger" />
                 </div>
+
+                <!-- Readonly UpdatedBy Field -->
                 <div class="mb-3">
-                    <label for="datecreated" class="form-label">DateCreated:</label>
-                    <InputDate id="datecreated" @bind-Value="Lesson.DateCreated" class="form-control" />
-                    <ValidationMessage For="() => Lesson.DateCreated" class="text-danger" />
+                    <label for="updatedby" class="form-label">Updated By:</label>
+                    <InputText id="updatedby" @bind-Value="Lesson.UpdatedBy" class="form-control" readonly />
                 </div>
-                <div class="mb-3">
-                    <label for="dateupdated" class="form-label">DateUpdated:</label>
+
+                <!-- Hidden DateUpdated Field -->
+                <div class="mb-3" hidden>
+                    <label for="dateupdated" class="form-label">Date Updated:</label>
                     <InputDate id="dateupdated" @bind-Value="Lesson.DateUpdated" class="form-control" />
-                    <ValidationMessage For="() => Lesson.DateUpdated" class="text-danger" />
                 </div>
-                <div class="mb-3">
-                    <label for="createdby" class="form-label">CreatedBy:</label>
-                    <InputText id="createdby" @bind-Value="Lesson.CreatedBy" class="form-control" />
-                    <ValidationMessage For="() => Lesson.CreatedBy" class="text-danger" />
-                </div>
-                <div class="mb-3">
-                    <label for="updatedby" class="form-label">UpdatedBy:</label>
-                    <InputText id="updatedby" @bind-Value="Lesson.UpdatedBy" class="form-control" />
-                    <ValidationMessage For="() => Lesson.UpdatedBy" class="text-danger" />
-                </div>
+
                 <button type="submit" class="btn btn-primary">Save</button>
             </EditForm>
         </div>
@@ -73,29 +67,46 @@ else
 </div>
 
 @code {
+    private string userId = string.Empty;
+
     [SupplyParameterFromQuery]
     private int LessonId { get; set; }
 
-    [SupplyParameterFromForm]
     private Lesson? Lesson { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
         using var context = DbFactory.CreateDbContext();
-        Lesson ??= await context.Lesson.FirstOrDefaultAsync(m => m.LessonId == LessonId);
+
+        // Fetch lesson by ID
+        Lesson = await context.Lesson.FirstOrDefaultAsync(m => m.LessonId == LessonId);
 
         if (Lesson is null)
         {
             NavigationManager.NavigateTo("notfound");
+            return;
         }
+
+        // Get the authenticated user's email
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        userId = authState.User.Identity?.Name ?? "Admin";
+
+        // Ensure UpdatedBy is set correctly
+        Lesson.UpdatedBy = userId;
     }
 
-    // To protect from overposting attacks, enable the specific properties you want to bind to.
-    // For more information, see https://learn.microsoft.com/aspnet/core/blazor/forms/#mitigate-overposting-attacks.
     private async Task UpdateLesson()
     {
+        if (Lesson is null) return;
+
         using var context = DbFactory.CreateDbContext();
-        context.Attach(Lesson!).State = EntityState.Modified;
+
+        // Ensure correct values are set
+        Lesson.UpdatedBy = userId;
+        Lesson.DateUpdated = DateTime.Now;
+
+        // Update lesson in database
+        context.Attach(Lesson).State = EntityState.Modified;
 
         try
         {
@@ -103,7 +114,7 @@ else
         }
         catch (DbUpdateConcurrencyException)
         {
-            if (!LessonExists(Lesson!.LessonId))
+            if (!LessonExists(Lesson.LessonId))
             {
                 NavigationManager.NavigateTo("notfound");
             }
@@ -116,9 +127,9 @@ else
         NavigationManager.NavigateTo("/lessons");
     }
 
-    private bool LessonExists(int lessonid)
+    private bool LessonExists(int lessonId)
     {
         using var context = DbFactory.CreateDbContext();
-        return context.Lesson.Any(e => e.LessonId == lessonid);
+        return context.Lesson.Any(e => e.LessonId == lessonId);
     }
 }

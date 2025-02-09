@@ -15,42 +15,53 @@
 
 <p>
     <AuthorizeView Roles="Administrator">
-    <a href="languages/create">Add Language</a>
+        <a href="languages/create">Add Language</a>
     </AuthorizeView>
 </p>
 
+<!-- Dynamically Generate Language Buttons -->
 <div>
-    <button class="btn btn-primary" onclick="location.href='/lessons/japanese'">Japanese</button>
-    <button class="btn btn-primary" onclick="location.href='/lessons/chinese'">Chinese</button>
+    @if (Languages != null && Languages.Any())
+    {
+        @foreach (var language in Languages)
+        {
+            <button class="btn btn-primary" onclick="location.href='/lessons/@language.Name.ToLower()'">
+                @language.Name
+            </button>
+        }
+    }
+    else
+    {
+        <p>No languages available.</p>
+    }
 </div>
 
-<QuickGrid Class="table" Items="context.Language">
-    <AuthorizeView Roles="Administrator">
+<!-- QuickGrid needs IQueryable<T> instead of List<T> -->
+<QuickGrid Class="table" Items="Languages">
     <PropertyColumn Property="language => language.Name" />
-    <PropertyColumn Property="language => language.UserId" />
-    <PropertyColumn Property="language => language.LessonId" />
     <PropertyColumn Property="language => language.DateCreated" />
     <PropertyColumn Property="language => language.DateUpdated" />
     <PropertyColumn Property="language => language.CreatedBy" />
     <PropertyColumn Property="language => language.UpdatedBy" />
-    </AuthorizeView>
-    <AuthorizeView Roles="Administrator">
+
     <TemplateColumn Context="language">
-        <a href="@($"languages/edit?languageid={language.LanguageId}")">Edit</a> |
-        <a href="@($"languages/details?languageid={language.LanguageId}")">Details</a> |
-        <a href="@($"languages/delete?languageid={language.LanguageId}")">Delete</a>
+        <AuthorizeView Roles="Administrator">
+            <a href="@($"languages/edit?languageid={language.LanguageId}")">Edit</a> |
+            <a href="@($"languages/details?languageid={language.LanguageId}")">Details</a> |
+            <a href="@($"languages/delete?languageid={language.LanguageId}")">Delete</a>
+        </AuthorizeView>
     </TemplateColumn>
-    </AuthorizeView>
 </QuickGrid>
 
 @code {
     private TriolingoContext context = default!;
+    private IQueryable<Language> Languages = default!; // Use IQueryable
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
         context = DbFactory.CreateDbContext();
+        Languages = context.Language.AsQueryable(); // Ensure it's IQueryable
     }
 
     public async ValueTask DisposeAsync() => await context.DisposeAsync();
-
 }

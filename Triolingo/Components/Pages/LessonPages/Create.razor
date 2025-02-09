@@ -1,6 +1,8 @@
 ﻿@page "/lessons/create"
 @using Microsoft.EntityFrameworkCore
 @using Triolingo.Domain
+@using Triolingo.Data
+@inject AuthenticationStateProvider AuthenticationStateProvider
 @inject IDbContextFactory<Triolingo.Data.TriolingoContext> DbFactory
 @inject NavigationManager NavigationManager
 
@@ -14,47 +16,47 @@
     <div class="col-md-4">
         <EditForm method="post" Model="Lesson" OnValidSubmit="AddLesson" FormName="create" Enhance>
             <DataAnnotationsValidator />
-            <ValidationSummary class="text-danger" role="alert"/>
+            <ValidationSummary class="text-danger" role="alert" />
             <div class="mb-3">
-                <label for="lessonname" class="form-label">LessonName:</label> 
-                <InputText id="lessonname" @bind-Value="Lesson.LessonName" class="form-control" /> 
-                <ValidationMessage For="() => Lesson.LessonName" class="text-danger" /> 
-            </div>        
+                <label for="lessonname" class="form-label">Lesson Name:</label>
+                <InputText id="lessonname" @bind-Value="Lesson.LessonName" class="form-control" />
+                <ValidationMessage For="() => Lesson.LessonName" class="text-danger" />
+            </div>
             <div class="mb-3">
-                <label for="lessoncontent" class="form-label">LessonContent:</label> 
-                <InputText id="lessoncontent" @bind-Value="Lesson.LessonContent" class="form-control" /> 
-                <ValidationMessage For="() => Lesson.LessonContent" class="text-danger" /> 
-            </div>        
+                <label for="lessoncontent" class="form-label">Lesson Content:</label>
+                <InputText id="lessoncontent" @bind-Value="Lesson.LessonContent" class="form-control" />
+                <ValidationMessage For="() => Lesson.LessonContent" class="text-danger" />
+            </div>
             <div class="mb-3">
-                <label for="lessonorder" class="form-label">LessonOrder:</label> 
-                <InputNumber id="lessonorder" @bind-Value="Lesson.LessonOrder" class="form-control" /> 
-                <ValidationMessage For="() => Lesson.LessonOrder" class="text-danger" /> 
-            </div>        
+                <label for="lessonorder" class="form-label">Lesson Order:</label>
+                <InputNumber id="lessonorder" @bind-Value="Lesson.LessonOrder" class="form-control" />
+                <ValidationMessage For="() => Lesson.LessonOrder" class="text-danger" />
+            </div>
             <div class="mb-3">
-                <label for="languageid" class="form-label">LanguageId:</label> 
-                <InputNumber id="languageid" @bind-Value="Lesson.LanguageId" class="form-control" /> 
-                <ValidationMessage For="() => Lesson.LanguageId" class="text-danger" /> 
-            </div>        
+                <label for="languageid" class="form-label">Language:</label>
+                <InputSelect id="languageid" @bind-Value="Lesson.LanguageId" class="form-control">
+                    <option value="">Select a language</option>
+                    @foreach (var language in Languages)
+                    {
+                        <option value="@language.Id">@language.Name</option>
+                    }
+                </InputSelect>
+                <ValidationMessage For="() => Lesson.LanguageId" class="text-danger" />
+            </div>
+
+            <!-- Read-only CreatedBy field -->
             <div class="mb-3">
-                <label for="datecreated" class="form-label">DateCreated:</label> 
-                <InputDate id="datecreated" @bind-Value="Lesson.DateCreated" class="form-control" /> 
-                <ValidationMessage For="() => Lesson.DateCreated" class="text-danger" /> 
-            </div>        
-            <div class="mb-3">
-                <label for="dateupdated" class="form-label">DateUpdated:</label> 
-                <InputDate id="dateupdated" @bind-Value="Lesson.DateUpdated" class="form-control" /> 
-                <ValidationMessage For="() => Lesson.DateUpdated" class="text-danger" /> 
-            </div>        
-            <div class="mb-3">
-                <label for="createdby" class="form-label">CreatedBy:</label> 
-                <InputText id="createdby" @bind-Value="Lesson.CreatedBy" class="form-control" /> 
-                <ValidationMessage For="() => Lesson.CreatedBy" class="text-danger" /> 
-            </div>        
-            <div class="mb-3">
-                <label for="updatedby" class="form-label">UpdatedBy:</label> 
-                <InputText id="updatedby" @bind-Value="Lesson.UpdatedBy" class="form-control" /> 
-                <ValidationMessage For="() => Lesson.UpdatedBy" class="text-danger" /> 
-            </div>        
+                <label for="createdby" class="form-label">Created By:</label>
+                <InputText id="createdby" @bind-Value="Lesson.CreatedBy" class="form-control" readonly />
+                <ValidationMessage For="() => Lesson.CreatedBy" class="text-danger" />
+            </div>
+
+            <!-- Hidden DateCreated field -->
+            <div class="mb-3" hidden>
+                <label for="datecreated" class="form-label">Date Created:</label>
+                <InputDate id="datecreated" @bind-Value="Lesson.DateCreated" class="form-control" />
+                <ValidationMessage For="() => Lesson.DateCreated" class="text-danger" />
+            </div>
             <button type="submit" class="btn btn-primary">Create</button>
         </EditForm>
     </div>
@@ -65,13 +67,38 @@
 </div>
 
 @code {
+    private string userId = string.Empty;
+
     [SupplyParameterFromForm]
     private Lesson Lesson { get; set; } = new();
 
-    // To protect from overposting attacks, see https://learn.microsoft.com/aspnet/core/blazor/forms/#mitigate-overposting-attacks.
+    private List<LanguageOption> Languages = new List<LanguageOption>
+    {
+        new LanguageOption { Id = 1, Name = "Japanese" },
+        new LanguageOption { Id = 2, Name = "Chinese" }
+    };
+
+    private class LanguageOption
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var userEmail = authState.User.Identity?.Name;
+
+        if (!string.IsNullOrEmpty(userEmail))
+        {
+            Lesson.CreatedBy = userEmail;
+        }
+    }
+
     private async Task AddLesson()
     {
         using var context = DbFactory.CreateDbContext();
+        Lesson.DateCreated = DateTime.Now;
         context.Lesson.Add(Lesson);
         await context.SaveChangesAsync();
         NavigationManager.NavigateTo("/lessons");

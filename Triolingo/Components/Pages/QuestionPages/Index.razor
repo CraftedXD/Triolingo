@@ -5,7 +5,7 @@
 @using Triolingo.Data
 @implements IAsyncDisposable
 @inject IDbContextFactory<Triolingo.Data.TriolingoContext> DbFactory
-
+@attribute [Authorize(Roles = "Administrator")]
 <PageTitle>Index</PageTitle>
 
 <h1>Index</h1>
@@ -16,7 +16,6 @@
 
 <QuickGrid Class="table" Items="context.Question">
     <PropertyColumn Property="question => question.QuestionText" />
-    <PropertyColumn Property="question => question.UserAnswer" />
     <PropertyColumn Property="question => question.CorrectAnswer" />
     <PropertyColumn Property="question => question.QuizId" />
     <PropertyColumn Property="question => question.DateCreated" />

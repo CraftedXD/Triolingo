@@ -37,13 +37,15 @@
     <PropertyColumn Property="community => community.DateCreated" />
     <PropertyColumn Property="community => community.CreatedBy" />
     
-    <AuthorizeView Roles="Administrator">
+
     <TemplateColumn Context="community">
+        <AuthorizeView Roles="Administrator">
         <a href="@($"communities/edit?communityid={community.CommunityId}")">Edit</a> |
         <a href="@($"communities/details?communityid={community.CommunityId}")">Details</a> |
         <a href="@($"communities/delete?communityid={community.CommunityId}")">Delete</a>
+            </AuthorizeView>
     </TemplateColumn>
-    </AuthorizeView>
+
 </QuickGrid>
 
 @code {

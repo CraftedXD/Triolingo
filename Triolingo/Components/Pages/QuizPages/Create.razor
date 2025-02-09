@@ -1,6 +1,8 @@
 ﻿@page "/quizzes/create"
 @using Microsoft.EntityFrameworkCore
 @using Triolingo.Domain
+@using Triolingo.Data
+@inject AuthenticationStateProvider AuthenticationStateProvider
 @inject IDbContextFactory<Triolingo.Data.TriolingoContext> DbFactory
 @inject NavigationManager NavigationManager
 
@@ -14,42 +16,37 @@
     <div class="col-md-4">
         <EditForm method="post" Model="Quiz" OnValidSubmit="AddQuiz" FormName="create" Enhance>
             <DataAnnotationsValidator />
-            <ValidationSummary class="text-danger" role="alert"/>
+            <ValidationSummary class="text-danger" role="alert" />
             <div class="mb-3">
-                <label for="quiztitle" class="form-label">QuizTitle:</label> 
-                <InputText id="quiztitle" @bind-Value="Quiz.QuizTitle" class="form-control" /> 
-                <ValidationMessage For="() => Quiz.QuizTitle" class="text-danger" /> 
-            </div>        
+                <label for="quiztitle" class="form-label">Quiz Title:</label>
+                <InputText id="quiztitle" @bind-Value="Quiz.QuizTitle" class="form-control" />
+                <ValidationMessage For="() => Quiz.QuizTitle" class="text-danger" />
+            </div>
             <div class="mb-3">
-                <label for="leveldifficultly" class="form-label">LevelDifficultly:</label> 
-                <InputNumber id="leveldifficultly" @bind-Value="Quiz.LevelDifficultly" class="form-control" /> 
-                <ValidationMessage For="() => Quiz.LevelDifficultly" class="text-danger" /> 
-            </div>        
+                <label for="leveldifficultly" class="form-label">LevelDifficultly:</label>
+                <InputNumber id="leveldifficultly" @bind-Value="Quiz.LevelDifficultly" class="form-control" />
+                <ValidationMessage For="() => Quiz.LevelDifficultly" class="text-danger" />
+            </div>
             <div class="mb-3">
-                <label for="lessonid" class="form-label">LessonId:</label> 
-                <InputNumber id="lessonid" @bind-Value="Quiz.LessonId" class="form-control" /> 
-                <ValidationMessage For="() => Quiz.LessonId" class="text-danger" /> 
-            </div>        
+                <label for="lessonid" class="form-label">LessonId:</label>
+                <InputNumber id="lessonid" @bind-Value="Quiz.LessonId" class="form-control" />
+                <ValidationMessage For="() => Quiz.LessonId" class="text-danger" />
+            </div>
+
+            <!-- Read-only CreatedBy field -->
             <div class="mb-3">
-                <label for="datecreated" class="form-label">DateCreated:</label> 
-                <InputDate id="datecreated" @bind-Value="Quiz.DateCreated" class="form-control" /> 
-                <ValidationMessage For="() => Quiz.DateCreated" class="text-danger" /> 
-            </div>        
-            <div class="mb-3">
-                <label for="dateupdated" class="form-label">DateUpdated:</label> 
-                <InputDate id="dateupdated" @bind-Value="Quiz.DateUpdated" class="form-control" /> 
-                <ValidationMessage For="() => Quiz.DateUpdated" class="text-danger" /> 
-            </div>        
-            <div class="mb-3">
-                <label for="createdby" class="form-label">CreatedBy:</label> 
-                <InputText id="createdby" @bind-Value="Quiz.CreatedBy" class="form-control" /> 
-                <ValidationMessage For="() => Quiz.CreatedBy" class="text-danger" /> 
-            </div>        
-            <div class="mb-3">
-                <label for="updatedby" class="form-label">UpdatedBy:</label> 
-                <InputText id="updatedby" @bind-Value="Quiz.UpdatedBy" class="form-control" /> 
-                <ValidationMessage For="() => Quiz.UpdatedBy" class="text-danger" /> 
-            </div>        
+                <label for="createdby" class="form-label">Created By:</label>
+                <InputText id="createdby" @bind-Value="Quiz.CreatedBy" class="form-control" readonly />
+                <ValidationMessage For="() => Quiz.CreatedBy" class="text-danger" />
+            </div>
+
+            <!-- Hidden DateCreated field -->
+            <div class="mb-3" hidden>
+                <label for="datecreated" class="form-label">Date Created:</label>
+                <InputDate id="datecreated" @bind-Value="Quiz.DateCreated" class="form-control" />
+                <ValidationMessage For="() => Quiz.DateCreated" class="text-danger" />
+            </div>
+
             <button type="submit" class="btn btn-primary">Create</button>
         </EditForm>
     </div>
@@ -60,13 +57,36 @@
 </div>
 
 @code {
+    private string userId = string.Empty;
+    private IList<LessonOption> Lessons = new List<LessonOption>();
+
     [SupplyParameterFromForm]
     private Quiz Quiz { get; set; } = new();
 
-    // To protect from overposting attacks, see https://learn.microsoft.com/aspnet/core/blazor/forms/#mitigate-overposting-attacks.
+    private class LessonOption
+    {
+        public int Id { get; set; }
+        public string Title { get; set; }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var userEmail = authState.User.Identity?.Name;
+
+        if (!string.IsNullOrEmpty(userEmail))
+        {
+            Quiz.CreatedBy = userEmail;
+        }
+
+        using var context = DbFactory.CreateDbContext();
+        
+    }
+
     private async Task AddQuiz()
     {
         using var context = DbFactory.CreateDbContext();
+        Quiz.DateCreated = DateTime.Now;
         context.Quiz.Add(Quiz);
         await context.SaveChangesAsync();
         NavigationManager.NavigateTo("/quizzes");

@@ -1,55 +1,41 @@
 ﻿@page "/languages/create"
 @using Microsoft.EntityFrameworkCore
 @using Triolingo.Domain
+@using Triolingo.Data
+@inject AuthenticationStateProvider AuthenticationStateProvider
 @inject IDbContextFactory<Triolingo.Data.TriolingoContext> DbFactory
 @inject NavigationManager NavigationManager
+@attribute [Authorize(Roles = "Administrator")]
 
-<PageTitle>Create</PageTitle>
+<PageTitle>Create Language</PageTitle>
 
-<h1>Create</h1>
-
-<h2>Language</h2>
+<h1>Create Language</h1>
 <hr />
 <div class="row">
     <div class="col-md-4">
-        <EditForm method="post" Model="Language" OnValidSubmit="AddLanguage" FormName="create" Enhance>
+        <EditForm Model="Language" OnValidSubmit="AddLanguage">
             <DataAnnotationsValidator />
-            <ValidationSummary class="text-danger" role="alert"/>
+            <ValidationSummary class="text-danger" role="alert" />
+
             <div class="mb-3">
-                <label for="name" class="form-label">Name:</label> 
-                <InputText id="name" @bind-Value="Language.Name" class="form-control" /> 
-                <ValidationMessage For="() => Language.Name" class="text-danger" /> 
-            </div>        
+                <label for="name" class="form-label">Name:</label>
+                <InputText id="name" @bind-Value="Language.Name" class="form-control" required />
+                <ValidationMessage For="() => Language.Name" class="text-danger" />
+            </div>
+
             <div class="mb-3">
-                <label for="userid" class="form-label">UserId:</label> 
-                <InputNumber id="userid" @bind-Value="Language.UserId" class="form-control" /> 
-                <ValidationMessage For="() => Language.UserId" class="text-danger" /> 
-            </div>        
+                <label for="lessonid" class="form-label">LessonId:</label>
+                <InputNumber id="lessonid" @bind-Value="Language.LessonId" class="form-control" />
+                <ValidationMessage For="() => Language.LessonId" class="text-danger" />
+            </div>
+
+            <!-- Readonly Fields -->
             <div class="mb-3">
-                <label for="lessonid" class="form-label">LessonId:</label> 
-                <InputNumber id="lessonid" @bind-Value="Language.LessonId" class="form-control" /> 
-                <ValidationMessage For="() => Language.LessonId" class="text-danger" /> 
-            </div>        
-            <div class="mb-3">
-                <label for="datecreated" class="form-label">DateCreated:</label> 
-                <InputDate id="datecreated" @bind-Value="Language.DateCreated" class="form-control" /> 
-                <ValidationMessage For="() => Language.DateCreated" class="text-danger" /> 
-            </div>        
-            <div class="mb-3">
-                <label for="dateupdated" class="form-label">DateUpdated:</label> 
-                <InputDate id="dateupdated" @bind-Value="Language.DateUpdated" class="form-control" /> 
-                <ValidationMessage For="() => Language.DateUpdated" class="text-danger" /> 
-            </div>        
-            <div class="mb-3">
-                <label for="createdby" class="form-label">CreatedBy:</label> 
-                <InputText id="createdby" @bind-Value="Language.CreatedBy" class="form-control" /> 
-                <ValidationMessage For="() => Language.CreatedBy" class="text-danger" /> 
-            </div>        
-            <div class="mb-3">
-                <label for="updatedby" class="form-label">UpdatedBy:</label> 
-                <InputText id="updatedby" @bind-Value="Language.UpdatedBy" class="form-control" /> 
-                <ValidationMessage For="() => Language.UpdatedBy" class="text-danger" /> 
-            </div>        
+                <label for="createdby" class="form-label">Created By:</label>
+                <InputText id="createdby" @bind-Value="Language.CreatedBy" class="form-control" readonly="true" />
+            </div>
+
+
             <button type="submit" class="btn btn-primary">Create</button>
         </EditForm>
     </div>
@@ -60,15 +46,28 @@
 </div>
 
 @code {
+    private string userId = string.Empty;
+    private IList<TriolingoUser> LangUser;
     [SupplyParameterFromForm]
     private Language Language { get; set; } = new();
 
-    // To protect from overposting attacks, see https://learn.microsoft.com/aspnet/core/blazor/forms/#mitigate-overposting-attacks.
+    protected override async Task OnInitializedAsync()
+    {
+        // Fetch the authenticated user's email and set it to CreatedBy
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var userEmail = authState.User.Identity?.Name;
+        // Auto-assign values
+        Language.CreatedBy = userEmail;
+    }
     private async Task AddLanguage()
     {
         using var context = DbFactory.CreateDbContext();
+        
+        Language.DateCreated = DateTime.Now;
+        // Save to database
         context.Language.Add(Language);
         await context.SaveChangesAsync();
+        // Redirect to list page
         NavigationManager.NavigateTo("/languages");
     }
 }

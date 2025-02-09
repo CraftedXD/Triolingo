@@ -16,10 +16,11 @@
             </NavLink>
         </div>
         <AuthorizeView>
-            <Authorized>
+            <Authorized Context="authContext">
+                <!-- Renaming context to authContext -->
                 <div class="nav-item px-3">
                     <NavLink class="nav-link" href="Account/Manage">
-                        <span class="bi bi-person-fill-nav-menu" aria-hidden="true"></span> @context.User.Identity?.Name
+                        <span class="bi bi-person-fill-nav-menu" aria-hidden="true"></span> @authContext.User.Identity?.Name
                     </NavLink>
                 </div>
                 <div class="nav-item px-3">
@@ -27,7 +28,26 @@
                         <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Language
                     </NavLink>
                 </div>
-                
+                <AuthorizeView Roles="Administrator">
+                    <Authorized Context="adminContext">
+                        <!-- Renaming context for Admin block -->
+                        <div class="nav-item px-3">
+                            <NavLink class="nav-link" href="lessons">
+                                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Lessons
+                            </NavLink>
+                        </div>
+                        <div class="nav-item px-3">
+                            <NavLink class="nav-link" href="quizzes">
+                                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Quizzes
+                            </NavLink>
+                        </div>
+                        <div class="nav-item px-3">
+                            <NavLink class="nav-link" href="questions">
+                                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Questions
+                            </NavLink>
+                        </div>
+                    </Authorized>
+                </AuthorizeView>
                 <div class="nav-item px-3">
                     <NavLink class="nav-link" href="communities">
                         <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Community
@@ -53,7 +73,8 @@
                     </form>
                 </div>
             </Authorized>
-            <NotAuthorized>
+            <NotAuthorized Context="guestContext">
+                <!-- Renaming context for NotAuthorized -->
                 <div class="nav-item px-3">
                     <NavLink class="nav-link" href="Account/Register">
                         <span class="bi bi-person-nav-menu" aria-hidden="true"></span> Register
@@ -66,6 +87,7 @@
                 </div>
             </NotAuthorized>
         </AuthorizeView>
+
     </nav>
 </div>
 
